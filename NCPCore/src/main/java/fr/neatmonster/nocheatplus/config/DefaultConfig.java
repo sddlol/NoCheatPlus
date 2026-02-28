@@ -502,9 +502,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_FREEZEINAIR, true, 1143);
         set(ConfPaths.MOVING_SURVIVALFLY_SETBACKPOLICY_FALLDAMAGE, true, 154);
         set(ConfPaths.MOVING_SURVIVALFLY_ACTIONS, "cancel log:flyfile:6:15:f" 
-            + " vl>100 cancel log:survivalfly:10:11:i log:flyfile:6:15:f" 
-            + " vl>700 cancel log:survivalfly:8:5:i log:flyfile:1:3:f" 
-            + " vl>2100 cancel log:survivalflyhighvl:0:4:icf cmdc:kickfly:0:15", 154);     
+            + " vl>80 cancel log:survivalfly:10:11:i log:flyfile:6:15:f" 
+            + " vl>400 cancel log:survivalfly:8:5:i log:flyfile:1:3:f" 
+            + " vl>1200 cancel log:survivalflyhighvl:0:4:icf cmdc:kickfly:0:15", 154);     
         // SurvivalFly - Hover Subcheck
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_CHECK, true, 154); // Not a check type yet.
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_STEP, 5, 154);
@@ -540,7 +540,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_LOADCHUNKS_WORLDCHANGE, true, 154);
         set(ConfPaths.MOVING_SPEEDGRACE, 2.5, 154);
         set(ConfPaths.MOVING_ENFORCELOCATION, true, 154);
-        set(ConfPaths.MOVING_SETBACK_METHOD, "default.modern", 154);
+        // Aggressive rollback preset: combine setTo + cancel + schedule/updateFrom.
+        set(ConfPaths.MOVING_SETBACK_METHOD, "setto_cancel_updatefrom_schedule", 154);
 
 
         /* Vehicles settings */

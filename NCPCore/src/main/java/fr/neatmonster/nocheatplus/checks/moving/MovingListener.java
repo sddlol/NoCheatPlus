@@ -1960,6 +1960,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
         }
         if (method.shouldCancel()) {
+            // Grim-style stronger rollback: even when using CANCEL strategy,
+            // force event.to to the setback position to reduce fly drift.
+            if (!method.shouldSetTo()) {
+                event.setTo(newTo);
+            }
             event.setCancelled(true);
             if (pData.isDebugActive(checkType)) {
                 debug(player, "Set back technique: CANCEL (schedule:" + method.shouldSchedule() + " updateFrom:" + method.shouldUpdateFrom() + ")");
