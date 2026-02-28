@@ -433,7 +433,9 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         // (Might pass generic context to factories, for shared + heavy properties.)
         final ReachContext reachContext = reachEnabled ? reach.getContext(player, loc, damaged, damagedLoc, data, cc) : null;
         final DirectionContext directionContext = directionEnabled ? direction.getContext(player, loc, damaged, damagedIsFake, damagedLoc, data, cc) : null;
-        final long traceOldest = tick - cc.loopMaxLatencyTicks; // TODO: Set by latency-window.
+        final long reachMaxLatencyTicks = reachEnabled ? cc.reachLoopMaxLatencyTicks : 0L;
+        final long directionMaxLatencyTicks = directionEnabled ? cc.loopMaxLatencyTicks : 0L;
+        final long traceOldest = tick - Math.max(reachMaxLatencyTicks, directionMaxLatencyTicks);
         // TODO: Iterating direction, which, static/dynamic choice.
         final Iterator<ITraceEntry> traceIt = damagedTrace.maxAgeIterator(traceOldest);
         boolean cancelled = false;
@@ -445,16 +447,20 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         boolean directionPassed = !directionEnabled; 
         // TODO: Maintain a latency estimate + max diff and invalidate completely (i.e. iterate from latest NEXT time)], or just max latency.
         // TODO: Consider a max-distance to "now", for fast invalidation.
-        long latencyEstimate = -1;
+        long latencyEstimateTicks = -1;
         ITraceEntry successEntry = null;
 
         while (traceIt.hasNext()) {
             final ITraceEntry entry = traceIt.next();
+            final int traceAgeTicks = (int) Math.max(0L, tick - entry.getTime());
             // Simplistic just check both until end or hit.
             // TODO: Other default distances/tolerances.
             boolean thisPassed = true;
             if (reachEnabled) {
-                if (reach.loopCheck(player, loc, damaged, entry, reachContext, data, cc)) {
+                if (traceAgeTicks > reachMaxLatencyTicks) {
+                    thisPassed = false;
+                }
+                else if (reach.loopCheck(player, loc, damaged, entry, traceAgeTicks, reachContext, data, cc)) {
                     thisPassed = false;
                 }
                 else {
@@ -463,7 +469,10 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             }
             // TODO: Efficiency: don't check at all, if strict and !thisPassed.
             if (directionEnabled && (reachPassed || !directionPassed)) {
-                if (direction.loopCheck(player, loc, damaged, entry, directionContext, data, cc)) {
+                if (traceAgeTicks > directionMaxLatencyTicks) {
+                    thisPassed = false;
+                }
+                else if (direction.loopCheck(player, loc, damaged, entry, directionContext, data, cc)) {
                     thisPassed = false;
                 }
                 else {
@@ -472,7 +481,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             }
             if (thisPassed) {
                 violation = false;
-                latencyEstimate = now - entry.getTime();
+                latencyEstimateTicks = traceAgeTicks;
                 successEntry = entry;
                 break;
             }
@@ -495,8 +504,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         }
 
         // TODO: Log exact state, probably record min/max latency (individually).
-        if (debug && latencyEstimate >= 0) {
-            debug(player, "Latency estimate: " + latencyEstimate + " ms."); // FCFS rather, at present.
+        if (debug && latencyEstimateTicks >= 0) {
+            debug(player, "Latency estimate: " + latencyEstimateTicks + " ticks."); // FCFS rather, at present.
         }
         return cancelled;
     }

@@ -195,7 +195,7 @@ public class Reach extends Check {
      * @return
      */
     public boolean loopCheck(final Player player, final Location pLoc, final Entity damaged, 
-                             final ITraceEntry dRef, final ReachContext context, 
+                             final ITraceEntry dRef, final int traceAgeTicks, final ReachContext context, 
                              final FightData data, final FightConfig cc) {
 
         boolean cancel = false;
@@ -226,10 +226,16 @@ public class Reach extends Check {
         if (violation > 0 || lenpRel - context.distanceLimit * data.reachMod > 0){
             // TODO: The silent cancel parts should be sen as "no violation" ?
             // Set minimum violation in context
-            context.minViolation = Math.min(context.minViolation, lenpRel);
+            if (lenpRel < context.minViolation) {
+                context.minViolation = lenpRel;
+                context.minViolationAgeTicks = traceAgeTicks;
+            }
             cancel = true;
         }
-        context.minResult = Math.min(context.minResult, lenpRel);
+        if (lenpRel < context.minResult) {
+            context.minResult = lenpRel;
+            context.minResultAgeTicks = traceAgeTicks;
+        }
 
         return cancel;
 
@@ -250,11 +256,18 @@ public class Reach extends Check {
                               final ReachContext context, final ITraceEntry traceEntry, final boolean forceViolation, 
                               final FightData data, final FightConfig cc, final IPlayerData pData) {
 
-        final double lenpRel = forceViolation && context.minViolation != Double.MAX_VALUE ? context.minViolation : context.minResult;
+        final boolean useViolation = forceViolation && context.minViolation != Double.MAX_VALUE;
+        final double lenpRelRaw = useViolation ? context.minViolation : context.minResult;
+        final int ageTicks = useViolation ? context.minViolationAgeTicks : context.minResultAgeTicks;
 
-        if (lenpRel == Double.MAX_VALUE) {
+        if (lenpRelRaw == Double.MAX_VALUE) {
             return false;
         }
+
+        final double latencyPenalty = cc.reachLatencyPenaltyPerTick <= 0.0 || ageTicks == Integer.MAX_VALUE
+                ? 0.0
+                : Math.max(0.0, (ageTicks - cc.reachLatencyPenaltyGraceTicks) * cc.reachLatencyPenaltyPerTick);
+        final double lenpRel = lenpRelRaw + latencyPenalty;
 
         double violation = lenpRel - context.distanceLimit;
         boolean cancel = false;
@@ -319,7 +332,12 @@ public class Reach extends Check {
 
         if (pData.isDebugActive(type) && pData.hasPermission(Permissions.ADMINISTRATION_DEBUG, player)){
             // TODO: Height: remember successful ITraceEntry
-            player.sendMessage("NC+: Attack/reach " + damaged.getType()+ (traceEntry == null ? "" : (" height=" + traceEntry.getBoxMarginVertical())) + " dist=" + StringUtil.fdec3.format(lenpRel) +" @" + StringUtil.fdec3.format(data.reachMod));
+            player.sendMessage("NC+: Attack/reach " + damaged.getType()
+                    + (traceEntry == null ? "" : (" height=" + traceEntry.getBoxMarginVertical()))
+                    + " dist=" + StringUtil.fdec3.format(lenpRel)
+                    + " raw=" + StringUtil.fdec3.format(lenpRelRaw)
+                    + " age=" + (ageTicks == Integer.MAX_VALUE ? "?" : ageTicks)
+                    + "t @" + StringUtil.fdec3.format(data.reachMod));
         }
 
         return cancel;

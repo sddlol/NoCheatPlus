@@ -365,6 +365,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_REACH_PRECISION, true, 154);
         set(ConfPaths.FIGHT_REACH_REDUCEDISTANCE, 0.8, 154);
         set(ConfPaths.FIGHT_REACH_REDUCESTEP, 0.14, 154);
+        set(ConfPaths.FIGHT_REACH_LOOPMAXLATENCYTICKS, 6, 154);
+        set(ConfPaths.FIGHT_REACH_LATENCYPENALTYGRACETICKS, 2, 154);
+        set(ConfPaths.FIGHT_REACH_LATENCYPENALTYPERTICK, 0.03, 154);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_FEEDONLY, false, 154);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_WEIGHT, 2.0, 154);
         set(ConfPaths.FIGHT_REACH_ACTIONS, "cancel vl>1 cancel log:freach:8:9:i vl>5 cancel log:freach:2:6:i vl>12 cancel log:freachhighvl:1:5:if vl>35 cancel log:freachhighvl:0:5:if cmdc:kicksuspiciouscombat:2:1", 154);

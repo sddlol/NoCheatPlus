@@ -30,7 +30,11 @@ public class ReachContext {
     public double pY;
     /** Minimum value of lenpRel that was a violation. */
     public double minViolation = Double.MAX_VALUE;
+    /** Tick-age of minViolation (for latency penalty model). */
+    public int minViolationAgeTicks = Integer.MAX_VALUE;
     /** Minimum value of lenpRel. */
     public double minResult = Double.MAX_VALUE;
+    /** Tick-age of minResult (for latency penalty model). */
+    public int minResultAgeTicks = Integer.MAX_VALUE;
 
 }

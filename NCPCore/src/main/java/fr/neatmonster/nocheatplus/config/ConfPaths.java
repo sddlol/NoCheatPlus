@@ -512,6 +512,9 @@ public abstract class ConfPaths {
     public static final String  FIGHT_REACH_REDUCE                       = FIGHT_REACH + "reduce";
     public static final String  FIGHT_REACH_REDUCEDISTANCE               = FIGHT_REACH + "reduce-distance";
     public static final String  FIGHT_REACH_REDUCESTEP                   = FIGHT_REACH + "reduce-step";
+    public static final String  FIGHT_REACH_LOOPMAXLATENCYTICKS          = FIGHT_REACH + "loop-max-latency-ticks";
+    public static final String  FIGHT_REACH_LATENCYPENALTYGRACETICKS     = FIGHT_REACH + "latency-penalty-grace-ticks";
+    public static final String  FIGHT_REACH_LATENCYPENALTYPERTICK        = FIGHT_REACH + "latency-penalty-per-tick";
     private static final String FIGHT_REACH_IMPROBABLE                   = FIGHT_REACH + "improbable.";
     public static final String  FIGHT_REACH_IMPROBABLE_FEEDONLY          = FIGHT_REACH_IMPROBABLE + "feed-only";
     public static final String  FIGHT_REACH_IMPROBABLE_WEIGHT            = FIGHT_REACH_IMPROBABLE + "weight";

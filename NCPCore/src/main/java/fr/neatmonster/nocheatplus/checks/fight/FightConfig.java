@@ -66,6 +66,9 @@ public class FightConfig extends ACheckConfig {
     public final double	reachSurvivalDistance;
     public final double reachReduceDistance;
     public final double reachReduceStep;
+    public final int reachLoopMaxLatencyTicks;
+    public final int reachLatencyPenaltyGraceTicks;
+    public final double reachLatencyPenaltyPerTick;
     public final boolean reachImprobableFeedOnly;
     public final float reachImprobableWeight;
 
@@ -141,6 +144,9 @@ public class FightConfig extends ACheckConfig {
         reachReduce = config.getBoolean(ConfPaths.FIGHT_REACH_REDUCE);
         reachReduceDistance = config.getDouble(ConfPaths.FIGHT_REACH_REDUCEDISTANCE, 0, reachSurvivalDistance, 0.9);
         reachReduceStep = config.getDouble(ConfPaths.FIGHT_REACH_REDUCESTEP, 0, reachReduceDistance, 0.15);
+        reachLoopMaxLatencyTicks = (int) config.getInt(ConfPaths.FIGHT_REACH_LOOPMAXLATENCYTICKS, 1, 30, 6);
+        reachLatencyPenaltyGraceTicks = (int) config.getInt(ConfPaths.FIGHT_REACH_LATENCYPENALTYGRACETICKS, 0, 30, 2);
+        reachLatencyPenaltyPerTick = config.getDouble(ConfPaths.FIGHT_REACH_LATENCYPENALTYPERTICK, 0.0, 1.0, 0.03);
         reachImprobableFeedOnly = config.getBoolean(ConfPaths.FIGHT_REACH_IMPROBABLE_FEEDONLY);
         reachImprobableWeight = (float) config.getDouble(ConfPaths.FIGHT_REACH_IMPROBABLE_WEIGHT);
         reachActions = config.getOptimizedActionList(ConfPaths.FIGHT_REACH_ACTIONS, Permissions.FIGHT_REACH);
