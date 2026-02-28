@@ -185,6 +185,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_FASTPLACE_ACTIONS, "cancel vl>5 cancel log:fastplace:8:3:i vl>20 cancel log:fastplace:2:4:i vl>80 cancel log:fastplace:0:10:if cmdc:kickfastplace:1:10", 154);
         // Reach
         set(ConfPaths.BLOCKPLACE_REACH_CHECK, "default", 154);
+        set(ConfPaths.BLOCKPLACE_REACH_SURVIVALDISTANCE, 5.1, 154);
+        set(ConfPaths.BLOCKPLACE_REACH_CREATIVEDISTANCE, 5.6, 154);
+        set(ConfPaths.BLOCKPLACE_REACH_MOVEMENTSLACK, 0.12, 154);
         set(ConfPaths.BLOCKPLACE_REACH_ACTIONS, "cancel", 154);
         // NoSwing
         set(ConfPaths.BLOCKPLACE_NOSWING_CHECK, "default", 154);
@@ -198,6 +201,11 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG, 2, 154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE, true, 154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE, 90, 154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_RAYTRACE, true, 154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_RAYBUFFERMIN, 2.0, 154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_RAYBUFFERDECAY, 0.20, 154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_FAR_ACTIVE, true, 154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_FAR_DISTANCE, 4.9, 154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH, true, 154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_FEEDONLY, false, 154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_WEIGHT, 0.4, 154);
@@ -365,9 +373,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_REACH_PRECISION, true, 154);
         set(ConfPaths.FIGHT_REACH_REDUCEDISTANCE, 0.8, 154);
         set(ConfPaths.FIGHT_REACH_REDUCESTEP, 0.14, 154);
-        set(ConfPaths.FIGHT_REACH_LOOPMAXLATENCYTICKS, 6, 154);
-        set(ConfPaths.FIGHT_REACH_LATENCYPENALTYGRACETICKS, 2, 154);
-        set(ConfPaths.FIGHT_REACH_LATENCYPENALTYPERTICK, 0.03, 154);
+        set(ConfPaths.FIGHT_REACH_LOOPMAXLATENCYTICKS, 8, 154);
+        set(ConfPaths.FIGHT_REACH_LATENCYPENALTYGRACETICKS, 3, 154);
+        set(ConfPaths.FIGHT_REACH_LATENCYPENALTYPERTICK, 0.015, 154);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_FEEDONLY, false, 154);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_WEIGHT, 2.0, 154);
         set(ConfPaths.FIGHT_REACH_ACTIONS, "cancel vl>1 cancel log:freach:8:9:i vl>5 cancel log:freach:2:6:i vl>12 cancel log:freachhighvl:1:5:if vl>35 cancel log:freachhighvl:0:5:if cmdc:kicksuspiciouscombat:2:1", 154);

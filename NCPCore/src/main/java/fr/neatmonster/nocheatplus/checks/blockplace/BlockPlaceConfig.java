@@ -50,6 +50,9 @@ public class BlockPlaceConfig extends ACheckConfig {
     public final ActionList noSwingActions;
 
     public final ActionList reachActions;
+    public final double reachSurvivalDistance;
+    public final double reachCreativeDistance;
+    public final double reachMovementSlack;
 
     public final ActionList scaffoldActions;
     public final boolean scaffoldAngle;
@@ -58,6 +61,11 @@ public class BlockPlaceConfig extends ACheckConfig {
     public final boolean scaffoldSprint;
     public final boolean scaffoldRotate;
     public final int scaffoldRotateDiff;
+    public final boolean scaffoldRotateRaytrace;
+    public final double scaffoldRotateRayBufferMin;
+    public final double scaffoldRotateRayBufferDecay;
+    public final boolean scaffoldFar;
+    public final double scaffoldFarDistance;
     public final boolean scaffoldToolSwitch;
     public final boolean scaffoldImprobableFeedOnly;
     public final float   scaffoldImprobableWeight;
@@ -97,6 +105,9 @@ public class BlockPlaceConfig extends ACheckConfig {
         config.readMaterialFromList(ConfPaths.BLOCKPLACE_NOSWING_EXCEPTIONS, noSwingExceptions);
         noSwingActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_NOSWING_ACTIONS, Permissions.BLOCKPLACE_NOSWING);
 
+        reachSurvivalDistance = config.getDouble(ConfPaths.BLOCKPLACE_REACH_SURVIVALDISTANCE, 0.0, 8.0, 5.1);
+        reachCreativeDistance = config.getDouble(ConfPaths.BLOCKPLACE_REACH_CREATIVEDISTANCE, 0.0, 8.0, 5.6);
+        reachMovementSlack = config.getDouble(ConfPaths.BLOCKPLACE_REACH_MOVEMENTSLACK, 0.0, 1.0, 0.12);
         reachActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_REACH_ACTIONS, Permissions.BLOCKPLACE_REACH);
 
         scaffoldAngle = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_ANGLE);
@@ -105,6 +116,11 @@ public class BlockPlaceConfig extends ACheckConfig {
         scaffoldSprint = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_SPRINT);
         scaffoldRotate = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE);
         scaffoldRotateDiff = config.getInt(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE);
+        scaffoldRotateRaytrace = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_RAYTRACE);
+        scaffoldRotateRayBufferMin = config.getDouble(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_RAYBUFFERMIN, 0.0, 10.0, 2.0);
+        scaffoldRotateRayBufferDecay = config.getDouble(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_RAYBUFFERDECAY, 0.0, 2.0, 0.20);
+        scaffoldFar = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_FAR_ACTIVE);
+        scaffoldFarDistance = config.getDouble(ConfPaths.BLOCKPLACE_SCAFFOLD_FAR_DISTANCE, 0.0, 8.0, 4.9);
         scaffoldToolSwitch = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH);
         scaffoldImprobableFeedOnly = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_FEEDONLY);
         scaffoldImprobableWeight = (float) config.getDouble(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_WEIGHT);

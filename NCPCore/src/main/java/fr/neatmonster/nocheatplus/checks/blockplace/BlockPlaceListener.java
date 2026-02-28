@@ -286,7 +286,7 @@ public class BlockPlaceListener extends CheckListener {
                 }
                 // Always check for Scaffold whatever yawrate says. 
                 if (data.cancelNextPlace && (Math.abs(data.currentTick - TickTask.getTick()) < 10)
-                    || scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), thisMove.yDistance, pData.getGenericInstance(MovingData.class).sfJumpPhase)) {
+                    || scaffold.check(player, blockPlaced, placedFace, pData, data, cc, event.isCancelled(), thisMove.yDistance, pData.getGenericInstance(MovingData.class).sfJumpPhase)) {
                     cancelled = true;
                 }
                 // If not cancelled, do feed the Improbable.

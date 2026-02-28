@@ -24,18 +24,15 @@ import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
-import fr.neatmonster.nocheatplus.utilities.math.TrigUtil;
 
 /**
  * The Reach check will find out if a player places a block too far away.
  */
 public class Reach extends Check {
 
-    /** The maximum distance allowed to interact with a block in creative mode. */
+    /** Fallback defaults (can be overridden in config). */
     public static final double CREATIVE_DISTANCE = 5.6D;
-
-    /** The maximum distance allowed to interact with a block in survival mode. */
-    public static final double SURVIVAL_DISTANCE = 5.2D;
+    public static final double SURVIVAL_DISTANCE = 5.1D;
 
     /** For temporary use: LocUtil.clone before passing deeply, call setWorld(null) after use. */
     private final Location useLoc = new Location(null, 0, 0, 0);
@@ -59,27 +56,52 @@ public class Reach extends Check {
      * @return true, if successful
      */
     public boolean check(final Player player, final double eyeHeight, final Block block, final BlockPlaceData data, final BlockPlaceConfig cc) {
-    	// TODO: Ray tracing-based?
         boolean cancel = false;
-        final double distanceLimit = player.getGameMode() == GameMode.CREATIVE ? CREATIVE_DISTANCE : SURVIVAL_DISTANCE;
-        // Distance is calculated from eye location to center of targeted block.
+
+        final double baseLimit = player.getGameMode() == GameMode.CREATIVE
+                ? (cc.reachCreativeDistance > 0.0 ? cc.reachCreativeDistance : CREATIVE_DISTANCE)
+                : (cc.reachSurvivalDistance > 0.0 ? cc.reachSurvivalDistance : SURVIVAL_DISTANCE);
+        final double distanceLimit = baseLimit + Math.max(0.0, cc.reachMovementSlack);
+
+        // Grim-inspired approach: use shortest eye->block-AABB distance (not center point distance).
         final Location eyeLoc = player.getLocation(useLoc);
         eyeLoc.setY(eyeLoc.getY() + eyeHeight);
-        final double distance = TrigUtil.distance(eyeLoc, block) - distanceLimit;
 
-        if (distance > distanceLimit) {
+        final double minX = block.getX();
+        final double minY = block.getY();
+        final double minZ = block.getZ();
+        final double maxX = minX + 1.0;
+        final double maxY = minY + 1.0;
+        final double maxZ = minZ + 1.0;
+
+        final double closestX = clamp(eyeLoc.getX(), minX, maxX);
+        final double closestY = clamp(eyeLoc.getY(), minY, maxY);
+        final double closestZ = clamp(eyeLoc.getZ(), minZ, maxZ);
+
+        final double dx = eyeLoc.getX() - closestX;
+        final double dy = eyeLoc.getY() - closestY;
+        final double dz = eyeLoc.getZ() - closestZ;
+        final double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        final double violation = distance - distanceLimit;
+
+        if (violation > 0.0) {
             // They failed, increment violation level.
-            data.reachVL += distance - distanceLimit;
-            // Execute whatever actions are associated with this check and the violation level and find out if we should
-            // cancel the event.
-            final ViolationData vd = new ViolationData(this, player, data.reachVL, distance, cc.reachActions);
+            data.reachVL += violation;
+            final ViolationData vd = new ViolationData(this, player, data.reachVL, violation, cc.reachActions);
             vd.setParameter(ParameterName.REACH_DISTANCE, StringUtil.fdec3.format(distance));
             cancel = executeActions(vd).willCancel();
-        } 
+        }
         // Player passed the check, reward them
-        else data.reachVL *= 0.9D;
+        else {
+            data.reachVL *= 0.9D;
+        }
+
         // Cleanup.
         useLoc.setWorld(null);
         return cancel;
+    }
+
+    private static double clamp(final double v, final double min, final double max) {
+        return Math.max(min, Math.min(max, v));
     }
 }

@@ -48,6 +48,7 @@ public class BlockPlaceData extends ACheckData {
 	public int lastSlot = 0;
 	public long currentTick = 0;
 	public boolean cancelNextPlace = false;
+	public double scaffoldRayBuffer = 0.0;
 
     // Data of the fast place check.
     public final ActionFrequency fastPlaceBuckets = new ActionFrequency(2, 1000);

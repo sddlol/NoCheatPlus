@@ -281,6 +281,9 @@ public abstract class ConfPaths {
 
     private static final String BLOCKPLACE_REACH                         = BLOCKPLACE + "reach.";
     public static final String  BLOCKPLACE_REACH_CHECK                   = BLOCKPLACE_REACH + SUB_ACTIVE;
+    public static final String  BLOCKPLACE_REACH_SURVIVALDISTANCE        = BLOCKPLACE_REACH + "survival-distance";
+    public static final String  BLOCKPLACE_REACH_CREATIVEDISTANCE        = BLOCKPLACE_REACH + "creative-distance";
+    public static final String  BLOCKPLACE_REACH_MOVEMENTSLACK           = BLOCKPLACE_REACH + "movement-slack";
     public static final String  BLOCKPLACE_REACH_ACTIONS                 = BLOCKPLACE_REACH + "actions";
     
     private static final String BLOCKPLACE_SCAFFOLD                      = BLOCKPLACE + "scaffold.";
@@ -293,6 +296,12 @@ public abstract class ConfPaths {
     private static final String BLOCKPLACE_SCAFFOLD_ROTATE               = BLOCKPLACE_SCAFFOLD + "rotate.";
     public static final String  BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE        = BLOCKPLACE_SCAFFOLD_ROTATE + "active";
     public static final String  BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE    = BLOCKPLACE_SCAFFOLD_ROTATE + "difference";
+    public static final String  BLOCKPLACE_SCAFFOLD_ROTATE_RAYTRACE      = BLOCKPLACE_SCAFFOLD_ROTATE + "raytrace";
+    public static final String  BLOCKPLACE_SCAFFOLD_ROTATE_RAYBUFFERMIN  = BLOCKPLACE_SCAFFOLD_ROTATE + "ray-buffer-min";
+    public static final String  BLOCKPLACE_SCAFFOLD_ROTATE_RAYBUFFERDECAY= BLOCKPLACE_SCAFFOLD_ROTATE + "ray-buffer-decay";
+    private static final String BLOCKPLACE_SCAFFOLD_FAR                  = BLOCKPLACE_SCAFFOLD + "far.";
+    public static final String  BLOCKPLACE_SCAFFOLD_FAR_ACTIVE           = BLOCKPLACE_SCAFFOLD_FAR + "active";
+    public static final String  BLOCKPLACE_SCAFFOLD_FAR_DISTANCE         = BLOCKPLACE_SCAFFOLD_FAR + "distance";
     public static final String  BLOCKPLACE_SCAFFOLD_TOOLSWITCH           = BLOCKPLACE_SCAFFOLD + "tool-switch";
     private static final String BLOCKPLACE_SCAFFOLD_IMPROBABLE           = BLOCKPLACE_SCAFFOLD + "improbable.";
     public static final String  BLOCKPLACE_SCAFFOLD_IMPROBABLE_FEEDONLY  = BLOCKPLACE_SCAFFOLD_IMPROBABLE +"feed-only";

@@ -17,6 +17,8 @@ package fr.neatmonster.nocheatplus.checks.blockplace;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -66,7 +68,7 @@ public class Scaffold extends Check {
      * @param jumpPhase players jump phase
      * @return
      */
-    public boolean check(final Player player, final BlockFace placedFace, final IPlayerData pData,
+    public boolean check(final Player player, final Block placedBlock, final BlockFace placedFace, final IPlayerData pData,
                          final BlockPlaceData data, final BlockPlaceConfig cc, final boolean isCancelled,
                          final double yDistance, final int jumpPhase) {
         // NOTE: Looks like there's a legit fast-scaffolding technique called 'god-bridge'
@@ -86,11 +88,16 @@ public class Scaffold extends Check {
         //                (At that point it should be moved as a subcheck into something else. Wrongturn? A new Combined.PitchRate check? Wouldn't make sense keeping it into the BlockPlace category)      
         boolean cancel = false;
 
+        final long nowTick = TickTask.getTick();
+        if (Math.abs(nowTick - data.currentTick) > 20) {
+            data.scaffoldRayBuffer = Math.max(0.0, data.scaffoldRayBuffer - 1.0);
+        }
+
         // Update sneakTime since the player may have unsneaked after the last move.
         if (player.isSneaking()) {
             data.sneakTime = data.currentTick;
         }
-        data.currentTick = TickTask.getTick();
+        data.currentTick = nowTick;
 
         // Angle Check - Check if the player is looking at the block (Should already be covered by BlockInteract.Direction)
         if (cc.scaffoldAngle) {
@@ -184,9 +191,141 @@ public class Scaffold extends Check {
             };
             TickTask.addTickListener(toolSwitchTick);
         }
-        
+
+        // Grim-inspired FarPlace style: nearest eye->block-box distance.
+        if (cc.scaffoldFar && placedBlock != null) {
+            final double dist = minDistanceToBlock(player, placedBlock);
+            if (dist > cc.scaffoldFarDistance) {
+                final int weight = Math.max(1, Math.min(8, (int) Math.ceil((dist - cc.scaffoldFarDistance) * 6.0)));
+                cancel = violation("Far", weight, player, data, pData) || cancel;
+            }
+        }
+
+        // Grim-inspired RotationPlace style: look ray should intersect the placed block.
+        if (cc.scaffoldRotateRaytrace && placedBlock != null) {
+            if (!doesLookRayHitBlock(player, placedBlock, cc.scaffoldFarDistance + 0.8)) {
+                data.scaffoldRayBuffer = Math.min(6.0, data.scaffoldRayBuffer + 1.0);
+            } else {
+                data.scaffoldRayBuffer = Math.max(0.0, data.scaffoldRayBuffer - cc.scaffoldRotateRayBufferDecay);
+            }
+            if (data.scaffoldRayBuffer >= cc.scaffoldRotateRayBufferMin) {
+                cancel = violation("Ray", 1, player, data, pData) || cancel;
+                data.scaffoldRayBuffer = Math.max(0.0, data.scaffoldRayBuffer - 0.75);
+            }
+        }
+
         tags.clear();
         return cancel;
+    }
+
+    private static double minDistanceToBlock(final Player player, final Block block) {
+        final Location eye = player.getEyeLocation();
+        final double minX = block.getX();
+        final double minY = block.getY();
+        final double minZ = block.getZ();
+        final double maxX = minX + 1.0;
+        final double maxY = minY + 1.0;
+        final double maxZ = minZ + 1.0;
+
+        final double cx = clamp(eye.getX(), minX, maxX);
+        final double cy = clamp(eye.getY(), minY, maxY);
+        final double cz = clamp(eye.getZ(), minZ, maxZ);
+
+        final double dx = eye.getX() - cx;
+        final double dy = eye.getY() - cy;
+        final double dz = eye.getZ() - cz;
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    private static boolean doesLookRayHitBlock(final Player player, final Block block, final double maxDistance) {
+        final Location eye = player.getEyeLocation();
+        final Vector dir = eye.getDirection();
+        if (dir == null || dir.lengthSquared() < 1.0E-6) return true;
+
+        final Vector nd = dir.clone().normalize();
+        final double minX = block.getX();
+        final double minY = block.getY();
+        final double minZ = block.getZ();
+        final double maxX = minX + 1.0;
+        final double maxY = minY + 1.0;
+        final double maxZ = minZ + 1.0;
+
+        // If eye is already inside the placed block, treat as hit.
+        if (eye.getX() > minX && eye.getX() < maxX && eye.getY() > minY && eye.getY() < maxY && eye.getZ() > minZ && eye.getZ() < maxZ) {
+            return true;
+        }
+
+        return rayAabbIntersection(
+                eye.getX(), eye.getY(), eye.getZ(),
+                nd.getX(), nd.getY(), nd.getZ(),
+                minX, minY, minZ, maxX, maxY, maxZ,
+                maxDistance
+        );
+    }
+
+    private static boolean rayAabbIntersection(
+            final double ox, final double oy, final double oz,
+            final double dx, final double dy, final double dz,
+            final double minX, final double minY, final double minZ,
+            final double maxX, final double maxY, final double maxZ,
+            final double maxDistance) {
+
+        double tMin = 0.0;
+        double tMax = maxDistance;
+
+        // X slab
+        if (Math.abs(dx) < 1.0E-8) {
+            if (ox < minX || ox > maxX) return false;
+        } else {
+            double tx1 = (minX - ox) / dx;
+            double tx2 = (maxX - ox) / dx;
+            if (tx1 > tx2) {
+                final double t = tx1;
+                tx1 = tx2;
+                tx2 = t;
+            }
+            tMin = Math.max(tMin, tx1);
+            tMax = Math.min(tMax, tx2);
+            if (tMin > tMax) return false;
+        }
+
+        // Y slab
+        if (Math.abs(dy) < 1.0E-8) {
+            if (oy < minY || oy > maxY) return false;
+        } else {
+            double ty1 = (minY - oy) / dy;
+            double ty2 = (maxY - oy) / dy;
+            if (ty1 > ty2) {
+                final double t = ty1;
+                ty1 = ty2;
+                ty2 = t;
+            }
+            tMin = Math.max(tMin, ty1);
+            tMax = Math.min(tMax, ty2);
+            if (tMin > tMax) return false;
+        }
+
+        // Z slab
+        if (Math.abs(dz) < 1.0E-8) {
+            if (oz < minZ || oz > maxZ) return false;
+        } else {
+            double tz1 = (minZ - oz) / dz;
+            double tz2 = (maxZ - oz) / dz;
+            if (tz1 > tz2) {
+                final double t = tz1;
+                tz1 = tz2;
+                tz2 = t;
+            }
+            tMin = Math.max(tMin, tz1);
+            tMax = Math.min(tMax, tz2);
+            if (tMin > tMax) return false;
+        }
+
+        return tMax >= 0.0 && tMin <= maxDistance;
+    }
+
+    private static double clamp(final double v, final double min, final double max) {
+        return Math.max(min, Math.min(max, v));
     }
 
     /**
