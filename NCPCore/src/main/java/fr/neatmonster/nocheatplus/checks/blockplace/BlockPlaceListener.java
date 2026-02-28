@@ -341,7 +341,7 @@ public class BlockPlaceListener extends CheckListener {
         if (cancelled) {
             event.setCancelled(true);
             // Grim-like stronger reaction: rollback position too, not only cancel place.
-            applyAggressiveSetBack(player, pData);
+            MovingUtil.applyAggressiveSetBack(player, pData, "[BlockPlaceCancel] ");
             // We need to do this because block-place cancelling can easily desync the player.
             pData.requestUpdateInventory();
         }
@@ -352,18 +352,6 @@ public class BlockPlaceListener extends CheckListener {
         // Reminder(currently unused): useLoc.setWorld(null);
     }
 
-    private void applyAggressiveSetBack(final Player player, final IPlayerData pData) {
-        if (player == null || pData == null) return;
-        final MovingData mData = pData.getGenericInstance(MovingData.class);
-        if (!mData.hasSetBack()) return;
-
-        final Location ref = player.getLocation();
-        final Location setBack = mData.getSetBack(ref);
-        mData.prepareSetBack(setBack);
-        MovingUtil.processStoredSetBack(player, "[BlockPlaceCancel] ", pData);
-        setBack.setWorld(null);
-    }
-    
     /** We listen to sign change events for the autosign check */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onSignChange(final SignChangeEvent event) {

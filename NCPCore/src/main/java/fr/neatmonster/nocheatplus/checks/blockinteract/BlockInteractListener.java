@@ -316,6 +316,9 @@ public class BlockInteractListener extends CheckListener {
                 }
             }
         }
+        if (event.isCancelled()) {
+            MovingUtil.applyAggressiveSetBack(player, pData, "[BlockInteractCancel] ");
+        }
     }
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)

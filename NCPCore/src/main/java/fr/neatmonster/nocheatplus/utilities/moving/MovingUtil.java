@@ -595,6 +595,38 @@ public class MovingUtil {
 
 
     /**
+     * Grim-style aggressive rollback helper for non-moving checks:
+     * prepare setback and process it immediately.
+     *
+     * @param player
+     * @param pData
+     * @param debugMessagePrefix
+     * @return true, if a teleport has been attempted successfully.
+     */
+    public static boolean applyAggressiveSetBack(final Player player, final IPlayerData pData, final String debugMessagePrefix) {
+        if (player == null || pData == null) {
+            return false;
+        }
+        final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
+        if (cc == null || !cc.enforceLocation) {
+            return false;
+        }
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        if (data == null || !data.hasSetBack()) {
+            return false;
+        }
+        final Location ref = player.getLocation();
+        final Location setBack = data.getSetBack(ref);
+        data.prepareSetBack(setBack);
+        final boolean success = processStoredSetBack(player,
+                debugMessagePrefix == null ? "[AggressiveSetBack] " : debugMessagePrefix,
+                pData);
+        setBack.setWorld(null);
+        ref.setWorld(null);
+        return success;
+    }
+
+    /**
      * Get the applicable set-back location at this moment.
      * <hr>
      * <ul>

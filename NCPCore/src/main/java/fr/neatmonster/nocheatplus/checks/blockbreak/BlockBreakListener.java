@@ -213,6 +213,7 @@ public class BlockBreakListener extends CheckListener {
         // On cancel...
         if (cancelled) {
             event.setCancelled(cancelled);
+            MovingUtil.applyAggressiveSetBack(player, pData, "[BlockBreakCancel] ");
             // Reset damage position:
             // TODO: Review this (!), check if set at all !?
             data.clickedX = block.getX();
