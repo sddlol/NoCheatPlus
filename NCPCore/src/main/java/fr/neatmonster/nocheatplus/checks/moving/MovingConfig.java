@@ -120,6 +120,18 @@ public class MovingConfig extends ACheckConfig {
     public final int velocityActivationCounter;
     /** Server ticks until invalidating queues velocity. */
     public final int velocityActivationTicks;
+    public final long velocityMaxPendingAfterDamageMs;
+    public final long velocitySampleWindowMs;
+    public final long velocityEvalDelayMs;
+    public final int velocityMinSamples;
+    public final double velocityMinExpectedHorizontal;
+    public final double velocityMinExpectedVertical;
+    public final double velocityMinTakeHorizontalRatio;
+    public final double velocityMinTakeVerticalRatio;
+    public final double velocityBufferMin;
+    public final double velocityBufferDecay;
+    public final boolean velocityCancel;
+    public final ActionList velocityActions;
     public final double noFallyOnGround;
     public final double yOnGround;
 
@@ -230,6 +242,18 @@ public class MovingConfig extends ACheckConfig {
 
         velocityActivationCounter = config.getInt(ConfPaths.MOVING_VELOCITY_ACTIVATIONCOUNTER);
         velocityActivationTicks = config.getInt(ConfPaths.MOVING_VELOCITY_ACTIVATIONTICKS);
+        velocityMaxPendingAfterDamageMs = config.getLong(ConfPaths.MOVING_VELOCITY_MAXPENDINGAFTERDAMAGEMS, 0L, 10_000L, 250L);
+        velocitySampleWindowMs = config.getLong(ConfPaths.MOVING_VELOCITY_SAMPLEWINDOWMS, 100L, 10_000L, 700L);
+        velocityEvalDelayMs = config.getLong(ConfPaths.MOVING_VELOCITY_EVALDELAYMS, 0L, 10_000L, 220L);
+        velocityMinSamples = (int) config.getInt(ConfPaths.MOVING_VELOCITY_MINSAMPLES, 1, 60, 3);
+        velocityMinExpectedHorizontal = config.getDouble(ConfPaths.MOVING_VELOCITY_MINEXPECTEDHORIZONTAL, 0.0, 5.0, 0.10);
+        velocityMinExpectedVertical = config.getDouble(ConfPaths.MOVING_VELOCITY_MINEXPECTEDVERTICAL, 0.0, 5.0, 0.08);
+        velocityMinTakeHorizontalRatio = config.getDouble(ConfPaths.MOVING_VELOCITY_MINTAKEHORIZONTALRATIO, 0.0, 1.0, 0.22);
+        velocityMinTakeVerticalRatio = config.getDouble(ConfPaths.MOVING_VELOCITY_MINTAKEVERTICALRATIO, 0.0, 1.0, 0.18);
+        velocityBufferMin = config.getDouble(ConfPaths.MOVING_VELOCITY_BUFFERMIN, 0.0, 10.0, 2.0);
+        velocityBufferDecay = config.getDouble(ConfPaths.MOVING_VELOCITY_BUFFERDECAY, 0.0, 5.0, 0.20);
+        velocityCancel = config.getBoolean(ConfPaths.MOVING_VELOCITY_CANCEL);
+        velocityActions = config.getOptimizedActionList(ConfPaths.MOVING_VELOCITY_ACTIONS, Permissions.MOVING_VELOCITY);
         yOnGround = config.getDouble(ConfPaths.MOVING_YONGROUND, Magic.Y_ON_GROUND_MIN, Magic.Y_ON_GROUND_MAX, Magic.Y_ON_GROUND_DEFAULT); // sqrt(1/256), see: NetServerHandler.
         noFallyOnGround = config.getDouble(ConfPaths.MOVING_NOFALL_YONGROUND, Magic.Y_ON_GROUND_MIN, Magic.Y_ON_GROUND_MAX, yOnGround);
 

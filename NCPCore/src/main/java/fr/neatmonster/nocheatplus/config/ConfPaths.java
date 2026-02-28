@@ -666,8 +666,21 @@ public abstract class ConfPaths {
 
     // Special (to be sorted in or factored out).
     private static final String MOVING_VELOCITY                             = MOVING + "velocity.";
+    public static final String  MOVING_VELOCITY_CHECK                       = MOVING_VELOCITY + SUB_ACTIVE;
     public static final String  MOVING_VELOCITY_ACTIVATIONCOUNTER           = MOVING_VELOCITY + "activation-counter";
     public static final String  MOVING_VELOCITY_ACTIVATIONTICKS             = MOVING_VELOCITY + "activation-ticks";
+    public static final String  MOVING_VELOCITY_MAXPENDINGAFTERDAMAGEMS     = MOVING_VELOCITY + "max-pending-after-damage-ms";
+    public static final String  MOVING_VELOCITY_SAMPLEWINDOWMS              = MOVING_VELOCITY + "sample-window-ms";
+    public static final String  MOVING_VELOCITY_EVALDELAYMS                 = MOVING_VELOCITY + "eval-delay-ms";
+    public static final String  MOVING_VELOCITY_MINSAMPLES                  = MOVING_VELOCITY + "min-samples";
+    public static final String  MOVING_VELOCITY_MINEXPECTEDHORIZONTAL       = MOVING_VELOCITY + "min-expected-horizontal";
+    public static final String  MOVING_VELOCITY_MINEXPECTEDVERTICAL         = MOVING_VELOCITY + "min-expected-vertical";
+    public static final String  MOVING_VELOCITY_MINTAKEHORIZONTALRATIO      = MOVING_VELOCITY + "min-take-horizontal-ratio";
+    public static final String  MOVING_VELOCITY_MINTAKEVERTICALRATIO        = MOVING_VELOCITY + "min-take-vertical-ratio";
+    public static final String  MOVING_VELOCITY_BUFFERMIN                   = MOVING_VELOCITY + "buffer-min";
+    public static final String  MOVING_VELOCITY_BUFFERDECAY                 = MOVING_VELOCITY + "buffer-decay";
+    public static final String  MOVING_VELOCITY_CANCEL                      = MOVING_VELOCITY + "cancel";
+    public static final String  MOVING_VELOCITY_ACTIONS                     = MOVING_VELOCITY + "actions";
 
     public static final String  MOVING_NOFALL_YONGROUND                     = MOVING_NOFALL + "yonground";
     public static final String  MOVING_YONGROUND                            = MOVING + "yonground";

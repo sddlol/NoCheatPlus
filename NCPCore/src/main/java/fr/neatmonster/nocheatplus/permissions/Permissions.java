@@ -167,6 +167,7 @@ public class Permissions {
     public static final RegisteredPermission  MOVING_NOFALL                = add(MOVING + ".nofall");
     public static final RegisteredPermission  MOVING_PASSABLE              = add(MOVING + ".passable");
     public static final RegisteredPermission  MOVING_SURVIVALFLY           = add(MOVING + ".survivalfly");
+    public static final RegisteredPermission  MOVING_VELOCITY              = add(MOVING + ".velocity");
 
     public static final RegisteredPermission  MOVING_VEHICLE               = add(MOVING + ".vehicle");
     public static final RegisteredPermission  MOVING_VEHICLE_MOREPACKETS   = add(MOVING_VEHICLE + ".morepackets");

@@ -515,9 +515,22 @@ public class DefaultConfig extends ConfigFile {
         // Moving Trace - Lag compensator
         set(ConfPaths.MOVING_TRACE_MAXAGE, 30, 154);
         set(ConfPaths.MOVING_TRACE_MAXSIZE, 30, 154);
-        // Velocity.
+        // Velocity / AntiKB.
+        set(ConfPaths.MOVING_VELOCITY_CHECK, "default", 154);
         set(ConfPaths.MOVING_VELOCITY_ACTIVATIONCOUNTER, 20, 154);
         set(ConfPaths.MOVING_VELOCITY_ACTIVATIONTICKS, 140, 154);
+        set(ConfPaths.MOVING_VELOCITY_MAXPENDINGAFTERDAMAGEMS, 250, 154);
+        set(ConfPaths.MOVING_VELOCITY_SAMPLEWINDOWMS, 700, 154);
+        set(ConfPaths.MOVING_VELOCITY_EVALDELAYMS, 220, 154);
+        set(ConfPaths.MOVING_VELOCITY_MINSAMPLES, 3, 154);
+        set(ConfPaths.MOVING_VELOCITY_MINEXPECTEDHORIZONTAL, 0.10, 154);
+        set(ConfPaths.MOVING_VELOCITY_MINEXPECTEDVERTICAL, 0.08, 154);
+        set(ConfPaths.MOVING_VELOCITY_MINTAKEHORIZONTALRATIO, 0.22, 154);
+        set(ConfPaths.MOVING_VELOCITY_MINTAKEVERTICALRATIO, 0.18, 154);
+        set(ConfPaths.MOVING_VELOCITY_BUFFERMIN, 2.0, 154);
+        set(ConfPaths.MOVING_VELOCITY_BUFFERDECAY, 0.20, 154);
+        set(ConfPaths.MOVING_VELOCITY_CANCEL, true, 154);
+        set(ConfPaths.MOVING_VELOCITY_ACTIONS, "cancel vl>12 log:movingvelocity:0:5:if", 154);
         // General.
         set(ConfPaths.MOVING_IGNORESTANCE, "default", 154);
         set(ConfPaths.MOVING_TEMPKICKILLEGAL, true, 154);

@@ -80,6 +80,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public double morePacketsVL = 0.0;
     public double noFallVL = 0.0;
     public double survivalFlyVL = 0.0;
+    public double velocityVL = 0.0;
     public double vehicleMorePacketsVL = 0.0;
     public double vehicleEnvelopeVL = 0.0;
     public double passableVL = 0.0;
@@ -191,6 +192,19 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     private final PairAxisVelocity horVel = new PairAxisVelocity();
     /** Compatibility entry for bouncing off of slime blocks and the like. */
     public SimpleEntry verticalBounce = null;
+
+    // *----------AntiKB helper state (Grim-inspired simple simulation)----------*
+    public long velocityAntiKbLastDamageTime = 0L;
+    public long velocityAntiKbStartTime = 0L;
+    public boolean velocityAntiKbActive = false;
+    public double velocityAntiKbExpectedHorizontal = 0.0;
+    public double velocityAntiKbExpectedVertical = 0.0;
+    public double velocityAntiKbMovedHorizontal = 0.0;
+    public double velocityAntiKbMaxYGain = 0.0;
+    public double velocityAntiKbBuffer = 0.0;
+    public int velocityAntiKbSamples = 0;
+    public Location velocityAntiKbLastLoc = null;
+    public double velocityAntiKbBaseY = 0.0;
 
     // *----------Coordinates----------*
     /** Moving trace (to-positions, use ms as time). This is initialized on "playerJoins, i.e. MONITOR, and set to null on playerLeaves." */
@@ -357,6 +371,19 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         lastFrictionVertical = lastStuckInBlockVertical = lastStuckInBlockHorizontal = 1.0;
         lastFrictionHorizontal = lastBlockSpeedMultiplier = 1.0f;
         lastInertia = 0.0f;
+        clearVelocityAntiKbData();
+    }
+
+    public void clearVelocityAntiKbData() {
+        velocityAntiKbActive = false;
+        velocityAntiKbStartTime = 0L;
+        velocityAntiKbExpectedHorizontal = 0.0;
+        velocityAntiKbExpectedVertical = 0.0;
+        velocityAntiKbMovedHorizontal = 0.0;
+        velocityAntiKbMaxYGain = 0.0;
+        velocityAntiKbSamples = 0;
+        velocityAntiKbLastLoc = null;
+        velocityAntiKbBaseY = 0.0;
     }
 
 
@@ -1395,6 +1422,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
                     break;
                 case MOVING_PASSABLE:
                     passableVL = 0;
+                    break;
+                case MOVING_VELOCITY:
+                    velocityVL = 0;
+                    clearVelocityAntiKbData();
                     break;
                 case MOVING_VEHICLE:
                     vehicleEnvelopeVL = 0;

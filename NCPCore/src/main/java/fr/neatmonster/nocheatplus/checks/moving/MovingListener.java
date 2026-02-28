@@ -66,6 +66,7 @@ import fr.neatmonster.nocheatplus.checks.moving.envelope.PhysicsEnvelope;
 import fr.neatmonster.nocheatplus.checks.moving.model.BounceType;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveInfo;
+import fr.neatmonster.nocheatplus.checks.moving.player.AntiKnockback;
 import fr.neatmonster.nocheatplus.checks.moving.player.CreativeFly;
 import fr.neatmonster.nocheatplus.checks.moving.player.MorePackets;
 import fr.neatmonster.nocheatplus.checks.moving.player.NoFall;
@@ -151,6 +152,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
     /** The survival fly check. */
     private final SurvivalFly survivalFly = addCheck(new SurvivalFly());
+
+    /** Grim-inspired anti-knockback check. */
+    private final AntiKnockback antiKnockback = addCheck(new AntiKnockback());
 
     /** The Passable check. */
     private final Passable passable = addCheck(new Passable());
@@ -657,14 +661,155 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // Ignore players who are in vehicles.
         if (player.isInsideVehicle()) {
             data.removeAllVelocity();
+            data.clearVelocityAntiKbData();
             return;
         }
         // Process velocity.
         final Vector velocity = event.getVelocity();
         final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         data.addVelocity(player, cc, velocity.getX(), velocity.getY(), velocity.getZ());
+
+        // Grim-inspired AntiKB init (movement simulation against received velocity).
+        if (!pData.isCheckActive(CheckType.MOVING_VELOCITY, player)) {
+            return;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - data.velocityAntiKbLastDamageTime > cc.velocityMaxPendingAfterDamageMs) {
+            return;
+        }
+
+        final double expectedH = Math.sqrt(velocity.getX() * velocity.getX() + velocity.getZ() * velocity.getZ());
+        final double expectedV = Math.max(0.0, velocity.getY());
+        if (expectedH < cc.velocityMinExpectedHorizontal && expectedV < cc.velocityMinExpectedVertical) {
+            return;
+        }
+
+        data.velocityAntiKbStartTime = now;
+        data.velocityAntiKbActive = true;
+        data.velocityAntiKbExpectedHorizontal = expectedH;
+        data.velocityAntiKbExpectedVertical = expectedV;
+        data.velocityAntiKbMovedHorizontal = 0.0;
+        data.velocityAntiKbMaxYGain = 0.0;
+        data.velocityAntiKbSamples = 0;
+        data.velocityAntiKbLastLoc = player.getLocation();
+        data.velocityAntiKbBaseY = data.velocityAntiKbLastLoc.getY();
     }
 
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onEntityDamageAntiKnockback(final EntityDamageEvent event) {
+        final Entity entity = event.getEntity();
+        if (!(entity instanceof Player)) {
+            return;
+        }
+        final DamageCause cause = event.getCause();
+        if (cause == null) {
+            return;
+        }
+        // Causes likely producing server-side velocity.
+        final boolean kbCause = cause == DamageCause.ENTITY_ATTACK
+                || cause == DamageCause.PROJECTILE
+                || cause == DamageCause.ENTITY_EXPLOSION
+                || cause == DamageCause.BLOCK_EXPLOSION
+                || cause == DamageCause.THORNS
+                || cause == DamageCause.CONTACT;
+        if (!kbCause) {
+            return;
+        }
+        final Player player = (Player) entity;
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        data.velocityAntiKbLastDamageTime = System.currentTimeMillis();
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onPlayerMoveAntiKnockback(final PlayerMoveEvent event) {
+        final Player player = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        if (!pData.isCheckActive(CheckType.MOVING_VELOCITY, player)) {
+            return;
+        }
+
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        if (!data.velocityAntiKbActive || event.getTo() == null) {
+            return;
+        }
+
+        final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
+        final long now = System.currentTimeMillis();
+
+        if (now - data.velocityAntiKbStartTime > cc.velocitySampleWindowMs) {
+            data.velocityAntiKbActive = false;
+            return;
+        }
+
+        if (player.isInsideVehicle() || player.isFlying() || player.getAllowFlight() || Bridge1_9.isGlidingWithElytra(player)) {
+            data.clearVelocityAntiKbData();
+            return;
+        }
+
+        final Location lastLoc = data.velocityAntiKbLastLoc;
+        final Location to = event.getTo();
+        if (lastLoc == null || lastLoc.getWorld() == null || to.getWorld() == null || !lastLoc.getWorld().equals(to.getWorld())) {
+            data.velocityAntiKbLastLoc = to.clone();
+            data.velocityAntiKbBaseY = to.getY();
+            return;
+        }
+
+        final double dx = to.getX() - lastLoc.getX();
+        final double dz = to.getZ() - lastLoc.getZ();
+        final double horizontal = Math.sqrt(dx * dx + dz * dz);
+        data.velocityAntiKbMovedHorizontal += horizontal;
+        if (horizontal > 0.0001) {
+            data.velocityAntiKbSamples++;
+        }
+        final double yGain = to.getY() - data.velocityAntiKbBaseY;
+        if (yGain > data.velocityAntiKbMaxYGain) {
+            data.velocityAntiKbMaxYGain = yGain;
+        }
+        data.velocityAntiKbLastLoc = to.clone();
+
+        if (now - data.velocityAntiKbStartTime < cc.velocityEvalDelayMs || data.velocityAntiKbSamples < cc.velocityMinSamples) {
+            return;
+        }
+
+        data.velocityAntiKbActive = false;
+
+        final double ratioH = data.velocityAntiKbExpectedHorizontal <= 0.0001
+                ? 1.0 : (data.velocityAntiKbMovedHorizontal / data.velocityAntiKbExpectedHorizontal);
+        final double ratioV = data.velocityAntiKbExpectedVertical <= 0.0001
+                ? 1.0 : (Math.max(0.0, data.velocityAntiKbMaxYGain) / data.velocityAntiKbExpectedVertical);
+
+        final boolean badH = data.velocityAntiKbExpectedHorizontal >= cc.velocityMinExpectedHorizontal
+                && ratioH < cc.velocityMinTakeHorizontalRatio;
+        final boolean badV = data.velocityAntiKbExpectedVertical >= cc.velocityMinExpectedVertical
+                && ratioV < cc.velocityMinTakeVerticalRatio;
+
+        if (badH || badV) {
+            data.velocityAntiKbBuffer = Math.min(6.0, data.velocityAntiKbBuffer + 1.0);
+        } else {
+            data.velocityAntiKbBuffer = Math.max(0.0, data.velocityAntiKbBuffer - cc.velocityBufferDecay);
+            return;
+        }
+
+        if (data.velocityAntiKbBuffer < cc.velocityBufferMin) {
+            return;
+        }
+
+        // Consume some buffer per actual violation.
+        data.velocityAntiKbBuffer = Math.max(0.0, data.velocityAntiKbBuffer - 0.5);
+
+        final boolean cancel = antiKnockback.check(player,
+                ratioH, ratioV,
+                data.velocityAntiKbExpectedHorizontal, data.velocityAntiKbMovedHorizontal,
+                data.velocityAntiKbExpectedVertical, Math.max(0.0, data.velocityAntiKbMaxYGain),
+                data, cc, pData);
+
+        if (cancel && cc.velocityCancel) {
+            event.setTo(event.getFrom());
+            data.prepareSetBack(event.getFrom());
+        }
+    }
 
     /** Listen to damage events for fall damage */
     @EventHandler(priority = EventPriority.LOWEST)
