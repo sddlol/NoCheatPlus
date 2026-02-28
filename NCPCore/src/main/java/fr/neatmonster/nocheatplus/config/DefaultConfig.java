@@ -188,7 +188,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_REACH_SURVIVALDISTANCE, 5.1, 154);
         set(ConfPaths.BLOCKPLACE_REACH_CREATIVEDISTANCE, 5.6, 154);
         set(ConfPaths.BLOCKPLACE_REACH_MOVEMENTSLACK, 0.12, 154);
-        set(ConfPaths.BLOCKPLACE_REACH_ACTIONS, "cancel", 154);
+        set(ConfPaths.BLOCKPLACE_REACH_ACTIONS, "cancel vl>40 cancel log:breach:0:5:if cmdc:kickagainst:0:5", 154);
         // NoSwing
         set(ConfPaths.BLOCKPLACE_NOSWING_CHECK, "default", 154);
         set(ConfPaths.BLOCKPLACE_NOSWING_EXCEPTIONS, Arrays.asList(BridgeMaterial.LILY_PAD.toString(), Material.FLINT_AND_STEEL.toString()), 154);
@@ -209,7 +209,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH, true, 154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_FEEDONLY, false, 154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_WEIGHT, 0.4, 154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "cancel vl>10 cancel log:scaffold:3:7:if vl>70 cancel log:scaffold:0:5:if cmd:clearscaffold:0:1 cmdc:kickscaffold:0:1", 154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "cancel vl>8 cancel log:scaffold:3:7:if vl>30 cancel log:scaffold:0:5:if cmd:clearscaffold:0:1 cmdc:kickscaffold:0:1", 154);
         // Speed
         set(ConfPaths.BLOCKPLACE_SPEED_CHECK, "default", 154);
         set(ConfPaths.BLOCKPLACE_SPEED_INTERVAL, 35L, 154); // Old limit: 45L < FPs with throwable potions.
@@ -342,7 +342,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_ANGLE_THRESHOLD_TIME, 150, 154); 
         set(ConfPaths.FIGHT_ANGLE_THRESHOLD_YAW, 60, 154); 
         set(ConfPaths.FIGHT_ANGLE_THRESHOLD_SWITCH, 50, 1153);
-        set(ConfPaths.FIGHT_ANGLE_ACTIONS, "cancel vl>100 log:angle:6:5:i cancel vl>800 log:angle:0:20:if cancel", 154);
+        set(ConfPaths.FIGHT_ANGLE_ACTIONS, "cancel vl>20 log:angle:6:5:i cancel vl>120 log:angle:0:10:if cmdc:kicksuspiciouscombat:1:5", 154);
         // Critical
         set(ConfPaths.FIGHT_CRITICAL_CHECK, "default", 154);
         set(ConfPaths.FIGHT_CRITICAL_ACTIONS, "cancel vl>5 cancel log:critical:6:10:i vl>60 cancel log:critical:0:5:icf cmd:clearcritical:0:5 cmdc:kickcritical:0:2", 1153);
@@ -468,7 +468,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 10, 154); // Maximum burst events within 500ms (Max packets allowed: 15*10=150 within 500ms)
         set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 95, 154); // Maximum burst events per minute
         set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 110, 154); // Quite harsh. 
-        set(ConfPaths.MOVING_MOREPACKETS_ACTIONS, "cancel vl>2 cancel log:morepackets:10:9:i vl>100 cancel log:morepackets:0:2:ifc cmdc:kickpackets:0:10", 154);
+        set(ConfPaths.MOVING_MOREPACKETS_ACTIONS, "cancel vl>2 cancel log:morepackets:10:9:i vl>60 cancel log:morepackets:0:2:ifc cmdc:kickpackets:0:10", 154);
         // NoFall
         set(ConfPaths.MOVING_NOFALL_CHECK, "default", 154);
         set(ConfPaths.MOVING_NOFALL_DEALDAMAGE, true, 154);
@@ -477,10 +477,10 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_NOFALL_RESETONTP, false, 154);
         set(ConfPaths.MOVING_NOFALL_RESETONVEHICLE, true, 154);
         set(ConfPaths.MOVING_NOFALL_ANTICRITICALS, true, 154);
-        set(ConfPaths.MOVING_NOFALL_ACTIONS, "cancel vl>2 cancel log:nofall:0:5:if", 154); //vl>6 cancel log:nofall:0:1:if cmdc:kickfly:0:5", 154);
+        set(ConfPaths.MOVING_NOFALL_ACTIONS, "cancel vl>2 cancel log:nofall:0:5:if vl>40 cancel log:nofall:0:3:if cmdc:kickfly:0:5", 154);
         // Passable
         set(ConfPaths.MOVING_PASSABLE_CHECK, "default", 154);
-        set(ConfPaths.MOVING_PASSABLE_ACTIONS, "cancel vl>15 cancel log:passable:7:9:i vl>100 cancel log:passable:1:4:if", 154);
+        set(ConfPaths.MOVING_PASSABLE_ACTIONS, "cancel vl>12 cancel log:passable:7:9:i vl>70 cancel log:passable:1:4:if cmdc:kickfly:0:10", 154);
         set(ConfPaths.MOVING_PASSABLE_UNTRACKED_TELEPORT_ACTIVE, true, 154);
         set(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_ACTIVE, true, 154);
         set(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_TRYTELEPORT, true, 154);
@@ -530,7 +530,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_VELOCITY_BUFFERMIN, 2.0, 154);
         set(ConfPaths.MOVING_VELOCITY_BUFFERDECAY, 0.20, 154);
         set(ConfPaths.MOVING_VELOCITY_CANCEL, true, 154);
-        set(ConfPaths.MOVING_VELOCITY_ACTIONS, "cancel vl>12 log:movingvelocity:0:5:if", 154);
+        set(ConfPaths.MOVING_VELOCITY_ACTIONS, "cancel vl>6 log:movingvelocity:0:5:if vl>25 cancel log:movingvelocity:0:2:if cmdc:kickfly:0:5", 154);
         // General.
         set(ConfPaths.MOVING_IGNORESTANCE, "default", 154);
         set(ConfPaths.MOVING_TEMPKICKILLEGAL, true, 154);
@@ -538,15 +538,15 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_LOADCHUNKS_MOVE, false, 154);
         set(ConfPaths.MOVING_LOADCHUNKS_TELEPORT, true, 154);
         set(ConfPaths.MOVING_LOADCHUNKS_WORLDCHANGE, true, 154);
-        set(ConfPaths.MOVING_SPEEDGRACE, 4.0, 154);
-        set(ConfPaths.MOVING_ENFORCELOCATION, "default", 154);
-        set(ConfPaths.MOVING_SETBACK_METHOD, "default", 154);
+        set(ConfPaths.MOVING_SPEEDGRACE, 2.5, 154);
+        set(ConfPaths.MOVING_ENFORCELOCATION, true, 154);
+        set(ConfPaths.MOVING_SETBACK_METHOD, "default.modern", 154);
 
 
         /* Vehicles settings */
         set(ConfPaths.MOVING_VEHICLE_PREVENTDESTROYOWN, true, 154);
-        set(ConfPaths.MOVING_VEHICLE_ENFORCELOCATION, "default", 154);
-        set(ConfPaths.MOVING_VEHICLE_SCHEDULESETBACKS, "default", 154);
+        set(ConfPaths.MOVING_VEHICLE_ENFORCELOCATION, true, 154);
+        set(ConfPaths.MOVING_VEHICLE_SCHEDULESETBACKS, true, 154);
         set(ConfPaths.MOVING_VEHICLE_DELAYADDPASSENGER, "default", 154);
         // VehicleMorePackets
         set(ConfPaths.MOVING_VEHICLE_MOREPACKETS_CHECK, "default", 154);
@@ -583,7 +583,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_KEEPALIVEFREQUENCY_ACTIONS, "cancel vl>10 cancel log:keepalive:2:6:i vl>60 cancel log:keepalive:0:10:icf cmdc:kickalive:0:5", 154);
         // Moving
         set(ConfPaths.NET_MOVING_ACTIVE, "default", 154);
-        set(ConfPaths.NET_MOVING_ACTIONS, "cancel vl>17 cancel log:moving:10:15:i", 154);
+        set(ConfPaths.NET_MOVING_ACTIONS, "cancel vl>12 cancel log:moving:10:15:i vl>80 cancel log:moving:2:5:if cmdc:kickpackets:0:5", 154);
         // PacketFrequency (pre 1.9).
         set(ConfPaths.NET_PACKETFREQUENCY_ACTIVE, "default", 154);
         set(ConfPaths.NET_PACKETFREQUENCY_PPS, 300, 154); // Old limit: 200, legit 1.8 clients seem to be able to reach such value more often than not...

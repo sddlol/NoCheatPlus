@@ -646,6 +646,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                         debug(attacker, "Prevent melee attack, due to a scheduled set back.");
                     }
                     event.setCancelled(true);
+                    applyAggressiveSetBack(player, attackerPData);
                 }
                 // Ordinary melee damage handling.
                 else if (handleNormalDamage(player, !crossPlugin.getHandle().isNativePlayer(player),
@@ -653,9 +654,22 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                                             BridgeHealth.getFinalDamage(event), tick, attackerData, 
                                             attackerPData, penaltyList)) {
                     event.setCancelled(true);
+                    applyAggressiveSetBack(player, attackerPData);
                 }
             }
         }
+    }
+
+    private void applyAggressiveSetBack(final Player player, final IPlayerData pData) {
+        if (player == null || pData == null) return;
+        final MovingData mData = pData.getGenericInstance(MovingData.class);
+        if (!mData.hasSetBack()) return;
+
+        final Location ref = player.getLocation();
+        final Location setBack = mData.getSetBack(ref);
+        mData.prepareSetBack(setBack);
+        MovingUtil.processStoredSetBack(player, "[FightCancel] ", pData);
+        setBack.setWorld(null);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
