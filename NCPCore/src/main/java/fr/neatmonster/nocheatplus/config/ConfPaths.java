@@ -682,6 +682,18 @@ public abstract class ConfPaths {
     public static final String  MOVING_VELOCITY_CANCEL                      = MOVING_VELOCITY + "cancel";
     public static final String  MOVING_VELOCITY_ACTIONS                     = MOVING_VELOCITY + "actions";
 
+    private static final String MOVING_TIMER                                = MOVING + "timer.";
+    public static final String  MOVING_TIMER_CHECK                          = MOVING_TIMER + SUB_ACTIVE;
+    public static final String  MOVING_TIMER_WINDOWMS                       = MOVING_TIMER + "window-ms";
+    public static final String  MOVING_TIMER_MINSAMPLES                     = MOVING_TIMER + "min-samples";
+    public static final String  MOVING_TIMER_MINMOVEDTMS                    = MOVING_TIMER + "min-move-dt-ms";
+    public static final String  MOVING_TIMER_MAXLOWDTRATIO                  = MOVING_TIMER + "max-low-dt-ratio";
+    public static final String  MOVING_TIMER_MINHORIZPERSAMPLE              = MOVING_TIMER + "min-horiz-per-sample";
+    public static final String  MOVING_TIMER_BUFFERMIN                      = MOVING_TIMER + "buffer-min";
+    public static final String  MOVING_TIMER_BUFFERDECAY                    = MOVING_TIMER + "buffer-decay";
+    public static final String  MOVING_TIMER_CANCEL                         = MOVING_TIMER + "cancel";
+    public static final String  MOVING_TIMER_ACTIONS                        = MOVING_TIMER + "actions";
+
     public static final String  MOVING_NOFALL_YONGROUND                     = MOVING_NOFALL + "yonground";
     public static final String  MOVING_YONGROUND                            = MOVING + "yonground";
 

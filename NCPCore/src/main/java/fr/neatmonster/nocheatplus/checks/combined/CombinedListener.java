@@ -111,6 +111,7 @@ public class CombinedListener extends CheckListener implements JoinLeaveListener
                     data.addVelocity((Player)event.getEntity(), pData.getGenericInstance(MovingConfig.class), lastMove.xAllowedDistance, lastMove.yAllowedDistance, lastMove.zAllowedDistance, VelocityFlags.FAKED);
                     if (shouldDenyGlidingStart((Player)event.getEntity(), event.isGliding(), true)) {
                         event.setCancelled(true);
+                        MovingUtil.applyAggressiveSetBack((Player) event.getEntity(), pData, "[GlideCancel] ");
                     }
                 }
             });

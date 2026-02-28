@@ -132,6 +132,17 @@ public class MovingConfig extends ACheckConfig {
     public final double velocityBufferDecay;
     public final boolean velocityCancel;
     public final ActionList velocityActions;
+
+    public final long timerWindowMs;
+    public final int timerMinSamples;
+    public final int timerMinMoveDtMs;
+    public final double timerMaxLowDtRatio;
+    public final double timerMinHorizPerSample;
+    public final double timerBufferMin;
+    public final double timerBufferDecay;
+    public final boolean timerCancel;
+    public final ActionList timerActions;
+
     public final double noFallyOnGround;
     public final double yOnGround;
 
@@ -254,6 +265,17 @@ public class MovingConfig extends ACheckConfig {
         velocityBufferDecay = config.getDouble(ConfPaths.MOVING_VELOCITY_BUFFERDECAY, 0.0, 5.0, 0.20);
         velocityCancel = config.getBoolean(ConfPaths.MOVING_VELOCITY_CANCEL);
         velocityActions = config.getOptimizedActionList(ConfPaths.MOVING_VELOCITY_ACTIONS, Permissions.MOVING_VELOCITY);
+
+        timerWindowMs = config.getLong(ConfPaths.MOVING_TIMER_WINDOWMS, 100L, 10_000L, 1500L);
+        timerMinSamples = (int) config.getInt(ConfPaths.MOVING_TIMER_MINSAMPLES, 1, 200, 14);
+        timerMinMoveDtMs = (int) config.getLong(ConfPaths.MOVING_TIMER_MINMOVEDTMS, 1L, 500L, 45L);
+        timerMaxLowDtRatio = config.getDouble(ConfPaths.MOVING_TIMER_MAXLOWDTRATIO, 0.0, 1.0, 0.45);
+        timerMinHorizPerSample = config.getDouble(ConfPaths.MOVING_TIMER_MINHORIZPERSAMPLE, 0.0, 5.0, 0.03);
+        timerBufferMin = config.getDouble(ConfPaths.MOVING_TIMER_BUFFERMIN, 0.0, 10.0, 2.0);
+        timerBufferDecay = config.getDouble(ConfPaths.MOVING_TIMER_BUFFERDECAY, 0.0, 5.0, 0.20);
+        timerCancel = config.getBoolean(ConfPaths.MOVING_TIMER_CANCEL);
+        timerActions = config.getOptimizedActionList(ConfPaths.MOVING_TIMER_ACTIONS, Permissions.MOVING_TIMER);
+
         yOnGround = config.getDouble(ConfPaths.MOVING_YONGROUND, Magic.Y_ON_GROUND_MIN, Magic.Y_ON_GROUND_MAX, Magic.Y_ON_GROUND_DEFAULT); // sqrt(1/256), see: NetServerHandler.
         noFallyOnGround = config.getDouble(ConfPaths.MOVING_NOFALL_YONGROUND, Magic.Y_ON_GROUND_MIN, Magic.Y_ON_GROUND_MAX, yOnGround);
 

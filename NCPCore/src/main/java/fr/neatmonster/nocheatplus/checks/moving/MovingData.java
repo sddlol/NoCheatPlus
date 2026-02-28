@@ -81,6 +81,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public double noFallVL = 0.0;
     public double survivalFlyVL = 0.0;
     public double velocityVL = 0.0;
+    public double timerVL = 0.0;
     public double vehicleMorePacketsVL = 0.0;
     public double vehicleEnvelopeVL = 0.0;
     public double passableVL = 0.0;
@@ -205,6 +206,15 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int velocityAntiKbSamples = 0;
     public Location velocityAntiKbLastLoc = null;
     public double velocityAntiKbBaseY = 0.0;
+
+    // *----------Timer helper state----------*
+    public long timerWindowStartTime = 0L;
+    public long timerLastMoveTime = 0L;
+    public int timerSampleCount = 0;
+    public int timerLowDtCount = 0;
+    public long timerDtSum = 0L;
+    public double timerHorizontalSum = 0.0;
+    public double timerBuffer = 0.0;
 
     // *----------Coordinates----------*
     /** Moving trace (to-positions, use ms as time). This is initialized on "playerJoins, i.e. MONITOR, and set to null on playerLeaves." */
@@ -372,6 +382,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         lastFrictionHorizontal = lastBlockSpeedMultiplier = 1.0f;
         lastInertia = 0.0f;
         clearVelocityAntiKbData();
+        clearTimerData();
     }
 
     public void clearVelocityAntiKbData() {
@@ -384,6 +395,16 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         velocityAntiKbSamples = 0;
         velocityAntiKbLastLoc = null;
         velocityAntiKbBaseY = 0.0;
+    }
+
+    public void clearTimerData() {
+        timerWindowStartTime = 0L;
+        timerLastMoveTime = 0L;
+        timerSampleCount = 0;
+        timerLowDtCount = 0;
+        timerDtSum = 0L;
+        timerHorizontalSum = 0.0;
+        timerBuffer = 0.0;
     }
 
 
@@ -413,6 +434,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         lastFrictionVertical = lastStuckInBlockVertical = lastStuckInBlockHorizontal = 1.0;
         lastFrictionHorizontal = lastBlockSpeedMultiplier =  1.0f;
         lastInertia = 0.0f;
+        clearTimerData();
         lastSetBackHash = setBack == null ? 0 : setBack.hashCode();
         // Reset to setBack.
         resetPlayerPositions(setBack);
@@ -1426,6 +1448,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
                 case MOVING_VELOCITY:
                     velocityVL = 0;
                     clearVelocityAntiKbData();
+                    break;
+                case MOVING_TIMER:
+                    timerVL = 0;
+                    clearTimerData();
                     break;
                 case MOVING_VEHICLE:
                     vehicleEnvelopeVL = 0;

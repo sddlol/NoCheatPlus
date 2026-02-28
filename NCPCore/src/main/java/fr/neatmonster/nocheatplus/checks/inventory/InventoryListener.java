@@ -177,6 +177,9 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                         event.setCancelled(true);
                     }
                 }
+                if (event.isCancelled()) {
+                    MovingUtil.applyAggressiveSetBack(player, pData, "[InventoryBowCancel] ");
+                }
                 useLoc.setWorld(null);
             }  
         }
@@ -268,6 +271,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         // Cancel the event.
         if (cancel || keepCancel) {
             event.setCancelled(true);
+            MovingUtil.applyAggressiveSetBack(player, pData, "[InventoryClickCancel] ");
         }
     }
     
@@ -282,7 +286,8 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final BookMeta newMeta = event.getNewBookMeta();
         final int pages = newMeta.getPageCount();
         if (gutenberg.check(player, data, pData, pages)) {
-        	event.setCancelled(true);
+            event.setCancelled(true);
+            MovingUtil.applyAggressiveSetBack(player, pData, "[InventoryBookCancel] ");
         }
     }
 
@@ -303,6 +308,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final long time = System.currentTimeMillis();
         if (fastConsume.check(player, event.getItem(), time, data, pData)) {
             event.setCancelled(true);
+            MovingUtil.applyAggressiveSetBack(player, pData, "[FastConsumeCancel] ");
             DataManager.getPlayerData(player).requestUpdateInventory();
         }
     }

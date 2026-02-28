@@ -73,6 +73,7 @@ import fr.neatmonster.nocheatplus.checks.moving.player.NoFall;
 import fr.neatmonster.nocheatplus.checks.moving.player.Passable;
 import fr.neatmonster.nocheatplus.checks.moving.player.PlayerSetBackMethod;
 import fr.neatmonster.nocheatplus.checks.moving.player.SurvivalFly;
+import fr.neatmonster.nocheatplus.checks.moving.player.Timer;
 import fr.neatmonster.nocheatplus.checks.moving.vehicle.VehicleChecks;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleEntry;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.VelocityFlags;
@@ -155,6 +156,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
     /** Grim-inspired anti-knockback check. */
     private final AntiKnockback antiKnockback = addCheck(new AntiKnockback());
+
+    /** Grim-inspired timer cadence check. */
+    private final Timer timer = addCheck(new Timer());
 
     /** The Passable check. */
     private final Passable passable = addCheck(new Passable());
@@ -806,6 +810,95 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 data, cc, pData);
 
         if (cancel && cc.velocityCancel) {
+            event.setTo(event.getFrom());
+            data.prepareSetBack(event.getFrom());
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onPlayerMoveTimer(final PlayerMoveEvent event) {
+        if (event.getTo() == null) {
+            return;
+        }
+        final Player player = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        if (!pData.isCheckActive(CheckType.MOVING_TIMER, player)) {
+            return;
+        }
+
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
+
+        if (player.isInsideVehicle() || player.isFlying() || player.getAllowFlight() || Bridge1_9.isGlidingWithElytra(player)) {
+            data.clearTimerData();
+            return;
+        }
+
+        final Location from = event.getFrom();
+        final Location to = event.getTo();
+        if (from.getWorld() == null || to.getWorld() == null || !from.getWorld().equals(to.getWorld())) {
+            data.clearTimerData();
+            return;
+        }
+
+        final long now = System.currentTimeMillis();
+        if (data.timerLastMoveTime <= 0L) {
+            data.timerLastMoveTime = now;
+            data.timerWindowStartTime = now;
+            return;
+        }
+
+        final long dt = Math.max(1L, now - data.timerLastMoveTime);
+        data.timerLastMoveTime = now;
+
+        if ((now - data.timerWindowStartTime) > cc.timerWindowMs) {
+            data.timerWindowStartTime = now;
+            data.timerSampleCount = 0;
+            data.timerLowDtCount = 0;
+            data.timerDtSum = 0L;
+            data.timerHorizontalSum = 0.0;
+        }
+
+        final double dx = to.getX() - from.getX();
+        final double dz = to.getZ() - from.getZ();
+        final double horiz = Math.sqrt(dx * dx + dz * dz);
+        if (horiz < cc.timerMinHorizPerSample) {
+            data.timerBuffer = Math.max(0.0, data.timerBuffer - cc.timerBufferDecay);
+            return;
+        }
+
+        data.timerSampleCount++;
+        data.timerDtSum += dt;
+        data.timerHorizontalSum += horiz;
+        if (dt < cc.timerMinMoveDtMs) {
+            data.timerLowDtCount++;
+        }
+
+        if (data.timerSampleCount < cc.timerMinSamples) {
+            return;
+        }
+
+        final double avgDt = data.timerDtSum / (double) data.timerSampleCount;
+        final double lowRatio = data.timerLowDtCount / (double) data.timerSampleCount;
+
+        final boolean suspicious = avgDt < cc.timerMinMoveDtMs
+                && lowRatio > cc.timerMaxLowDtRatio
+                && data.timerHorizontalSum > (data.timerSampleCount * cc.timerMinHorizPerSample * 1.2);
+
+        if (suspicious) {
+            data.timerBuffer = Math.min(6.0, data.timerBuffer + 1.0);
+        } else {
+            data.timerBuffer = Math.max(0.0, data.timerBuffer - cc.timerBufferDecay);
+            return;
+        }
+
+        if (data.timerBuffer < cc.timerBufferMin) {
+            return;
+        }
+
+        data.timerBuffer = Math.max(0.0, data.timerBuffer - 0.5);
+        final boolean cancel = timer.check(player, avgDt, lowRatio, data.timerSampleCount, data.timerHorizontalSum, data, cc, pData);
+        if (cancel && cc.timerCancel) {
             event.setTo(event.getFrom());
             data.prepareSetBack(event.getFrom());
         }
