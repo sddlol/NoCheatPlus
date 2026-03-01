@@ -234,6 +234,15 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         );
     }
 
+    private static double getLatencyAdaptiveFactor(final boolean active, final int pingMs, final double jitterMs) {
+        if (!active) {
+            return 0.0;
+        }
+        final double pingFactor = Math.min(1.0, Math.max(0.0, pingMs) / 240.0);
+        final double jitterFactor = Math.min(1.0, Math.max(0.0, jitterMs) / 45.0);
+        return Math.min(1.0, Math.max(pingFactor, jitterFactor));
+    }
+
 
     /** We listen to this event to remember upon exit if the player had been in a bed. */
     @EventHandler(priority = EventPriority.MONITOR)
@@ -697,6 +706,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         data.velocityAntiKbSamples = 0;
         data.velocityAntiKbLastLoc = player.getLocation();
         data.velocityAntiKbBaseY = data.velocityAntiKbLastLoc.getY();
+        data.velocityAntiKbLastMoveTime = now;
+        data.velocityAntiKbPrevDt = 0L;
+        data.velocityAntiKbDtJitterSum = 0L;
+        data.velocityAntiKbDtJitterSamples = 0;
     }
 
 
@@ -741,8 +754,26 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         final long now = System.currentTimeMillis();
+        final int pingMs = MovingUtil.getApproximatePingMs(player);
 
-        if (now - data.velocityAntiKbStartTime > cc.velocitySampleWindowMs) {
+        final long dtSample = data.velocityAntiKbLastMoveTime > 0L ? Math.max(1L, now - data.velocityAntiKbLastMoveTime) : 0L;
+        if (dtSample > 0L) {
+            if (data.velocityAntiKbPrevDt > 0L) {
+                data.velocityAntiKbDtJitterSum += Math.abs(dtSample - data.velocityAntiKbPrevDt);
+                data.velocityAntiKbDtJitterSamples++;
+            }
+            data.velocityAntiKbPrevDt = dtSample;
+            data.velocityAntiKbLastMoveTime = now;
+        }
+
+        final double velocityJitterMs = data.velocityAntiKbDtJitterSamples > 0
+                ? (data.velocityAntiKbDtJitterSum / (double) data.velocityAntiKbDtJitterSamples)
+                : 0.0;
+        final double velocityAdaptiveFactor = getLatencyAdaptiveFactor(cc.velocityLatencyAdaptiveActive, pingMs, velocityJitterMs);
+        final long velocitySampleWindowMs = cc.velocitySampleWindowMs
+                + Math.round(cc.velocityLatencyAdaptiveMaxExtraWindowMs * velocityAdaptiveFactor);
+
+        if (now - data.velocityAntiKbStartTime > velocitySampleWindowMs) {
             data.velocityAntiKbActive = false;
             return;
         }
@@ -773,7 +804,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
         data.velocityAntiKbLastLoc = to.clone();
 
-        if (now - data.velocityAntiKbStartTime < cc.velocityEvalDelayMs || data.velocityAntiKbSamples < cc.velocityMinSamples) {
+        final long velocityEvalDelayMs = cc.velocityEvalDelayMs
+                + Math.round(cc.velocityLatencyAdaptiveMaxExtraEvalDelayMs * velocityAdaptiveFactor);
+        if (now - data.velocityAntiKbStartTime < velocityEvalDelayMs || data.velocityAntiKbSamples < cc.velocityMinSamples) {
             return;
         }
 
@@ -784,10 +817,19 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final double ratioV = data.velocityAntiKbExpectedVertical <= 0.0001
                 ? 1.0 : (Math.max(0.0, data.velocityAntiKbMaxYGain) / data.velocityAntiKbExpectedVertical);
 
-        final boolean badH = data.velocityAntiKbExpectedHorizontal >= cc.velocityMinExpectedHorizontal
-                && ratioH < cc.velocityMinTakeHorizontalRatio;
-        final boolean badV = data.velocityAntiKbExpectedVertical >= cc.velocityMinExpectedVertical
-                && ratioV < cc.velocityMinTakeVerticalRatio;
+        final double velocityMinTakeHorizontalRatio = Math.max(0.0,
+                cc.velocityMinTakeHorizontalRatio - cc.velocityLatencyAdaptiveMaxRatioRelax * velocityAdaptiveFactor);
+        final double velocityMinTakeVerticalRatio = Math.max(0.0,
+                cc.velocityMinTakeVerticalRatio - cc.velocityLatencyAdaptiveMaxRatioRelax * velocityAdaptiveFactor);
+        final double velocityMinExpectedHorizontal = cc.velocityMinExpectedHorizontal
+                + cc.velocityLatencyAdaptiveMaxExpectedBoost * velocityAdaptiveFactor;
+        final double velocityMinExpectedVertical = cc.velocityMinExpectedVertical
+                + cc.velocityLatencyAdaptiveMaxExpectedBoost * velocityAdaptiveFactor;
+
+        final boolean badH = data.velocityAntiKbExpectedHorizontal >= velocityMinExpectedHorizontal
+                && ratioH < velocityMinTakeHorizontalRatio;
+        final boolean badV = data.velocityAntiKbExpectedVertical >= velocityMinExpectedVertical
+                && ratioV < velocityMinTakeVerticalRatio;
 
         if (badH || badV) {
             data.velocityAntiKbBuffer = Math.min(6.0, data.velocityAntiKbBuffer + 1.0);
@@ -807,6 +849,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 ratioH, ratioV,
                 data.velocityAntiKbExpectedHorizontal, data.velocityAntiKbMovedHorizontal,
                 data.velocityAntiKbExpectedVertical, Math.max(0.0, data.velocityAntiKbMaxYGain),
+                velocityMinExpectedHorizontal, velocityMinExpectedVertical,
+                velocityMinTakeHorizontalRatio, velocityMinTakeVerticalRatio,
+                pingMs, velocityJitterMs,
                 data, cc, pData);
 
         if (cancel && cc.velocityCancel) {
@@ -850,6 +895,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         final long dt = Math.max(1L, now - data.timerLastMoveTime);
         data.timerLastMoveTime = now;
+        if (data.timerPrevDt > 0L) {
+            data.timerDtJitterSum += Math.abs(dt - data.timerPrevDt);
+            data.timerDtJitterSamples++;
+        }
+        data.timerPrevDt = dt;
 
         if ((now - data.timerWindowStartTime) > cc.timerWindowMs) {
             data.timerWindowStartTime = now;
@@ -857,6 +907,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             data.timerLowDtCount = 0;
             data.timerDtSum = 0L;
             data.timerHorizontalSum = 0.0;
+            data.timerPrevDt = 0L;
+            data.timerDtJitterSum = 0L;
+            data.timerDtJitterSamples = 0;
         }
 
         final double dx = to.getX() - from.getX();
@@ -867,10 +920,20 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             return;
         }
 
+        final int pingMs = MovingUtil.getApproximatePingMs(player);
+        final double timerJitterMs = data.timerDtJitterSamples > 0
+                ? (data.timerDtJitterSum / (double) data.timerDtJitterSamples)
+                : 0.0;
+        final double timerAdaptiveFactor = getLatencyAdaptiveFactor(cc.timerLatencyAdaptiveActive, pingMs, timerJitterMs);
+        final double effectiveTimerMinMoveDtMs = Math.max(1.0,
+                cc.timerMinMoveDtMs - cc.timerLatencyAdaptiveMaxDtRelaxMs * timerAdaptiveFactor);
+        final double effectiveTimerMaxLowDtRatio = Math.min(1.0,
+                cc.timerMaxLowDtRatio + cc.timerLatencyAdaptiveMaxLowRatioRelax * timerAdaptiveFactor);
+
         data.timerSampleCount++;
         data.timerDtSum += dt;
         data.timerHorizontalSum += horiz;
-        if (dt < cc.timerMinMoveDtMs) {
+        if (dt < effectiveTimerMinMoveDtMs) {
             data.timerLowDtCount++;
         }
 
@@ -881,8 +944,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final double avgDt = data.timerDtSum / (double) data.timerSampleCount;
         final double lowRatio = data.timerLowDtCount / (double) data.timerSampleCount;
 
-        final boolean suspicious = avgDt < cc.timerMinMoveDtMs
-                && lowRatio > cc.timerMaxLowDtRatio
+        final boolean suspicious = avgDt < effectiveTimerMinMoveDtMs
+                && lowRatio > effectiveTimerMaxLowDtRatio
                 && data.timerHorizontalSum > (data.timerSampleCount * cc.timerMinHorizPerSample * 1.2);
 
         if (suspicious) {
@@ -897,7 +960,12 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
 
         data.timerBuffer = Math.max(0.0, data.timerBuffer - 0.5);
-        final boolean cancel = timer.check(player, avgDt, lowRatio, data.timerSampleCount, data.timerHorizontalSum, data, cc, pData);
+        final boolean cancel = timer.check(player,
+                avgDt, lowRatio,
+                data.timerSampleCount, data.timerHorizontalSum,
+                effectiveTimerMinMoveDtMs, effectiveTimerMaxLowDtRatio,
+                pingMs, timerJitterMs,
+                data, cc, pData);
         if (cancel && cc.timerCancel) {
             event.setTo(event.getFrom());
             data.prepareSetBack(event.getFrom());

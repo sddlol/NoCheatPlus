@@ -14,6 +14,7 @@
  */
 package fr.neatmonster.nocheatplus.utilities.moving;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 import org.bukkit.Chunk;
@@ -66,6 +67,10 @@ public class MovingUtil {
     private static final Location useLoc2 = new Location(null, 0, 0, 0);
     private static final long AGGRESSIVE_SETBACK_EVIDENCE_COOLDOWN_MS = 250L;
     private static final float AGGRESSIVE_SETBACK_EVIDENCE_WEIGHT = 6.0f;
+    private static volatile boolean pingLookupInitialized = false;
+    private static Method playerGetPingMethod = null;
+    private static Method playerSpigotMethod = null;
+    private static Method spigotGetPingMethod = null;
     //    /** Fast scan flags for 'mostly air'. */
     //    private static final long FLAGS_SCAN_FOR_GROUND_OR_RESETCOND = 
     //            BlockFlags.F_SOLID | BlockFlags.F_GROUND
@@ -646,6 +651,79 @@ public class MovingUtil {
                     (debugPrefix == null ? "[AggressiveSetBack] " : debugPrefix)
                             + "Improbable escalation from aggressive setback evidence.");
         }
+    }
+
+    /**
+     * Approximate network latency in ms.
+     * First tries Player#getPing(), then Player#spigot().getPing() by reflection.
+     * Returns 0 if unavailable.
+     */
+    public static int getApproximatePingMs(final Player player) {
+        if (player == null) {
+            return 0;
+        }
+        if (!pingLookupInitialized) {
+            initPingLookup();
+        }
+        try {
+            if (playerGetPingMethod != null) {
+                final Object value = playerGetPingMethod.invoke(player);
+                if (value instanceof Number) {
+                    return clampPing(((Number) value).intValue());
+                }
+            }
+            if (playerSpigotMethod != null && spigotGetPingMethod != null) {
+                final Object spigot = playerSpigotMethod.invoke(player);
+                if (spigot != null) {
+                    final Object value = spigotGetPingMethod.invoke(spigot);
+                    if (value instanceof Number) {
+                        return clampPing(((Number) value).intValue());
+                    }
+                }
+            }
+        }
+        catch (Throwable ignored) {
+            // Fall through.
+        }
+        return 0;
+    }
+
+    private static int clampPing(final int pingMs) {
+        if (pingMs < 0) {
+            return 0;
+        }
+        if (pingMs > 1000) {
+            return 1000;
+        }
+        return pingMs;
+    }
+
+    private static synchronized void initPingLookup() {
+        if (pingLookupInitialized) {
+            return;
+        }
+        try {
+            playerGetPingMethod = Player.class.getMethod("getPing");
+        }
+        catch (NoSuchMethodException ignored) {}
+        catch (Throwable ignored) {}
+
+        if (playerGetPingMethod == null) {
+            try {
+                playerSpigotMethod = Player.class.getMethod("spigot");
+                final Class<?> spigotClass = playerSpigotMethod.getReturnType();
+                if (spigotClass != null) {
+                    try {
+                        spigotGetPingMethod = spigotClass.getMethod("getPing");
+                    }
+                    catch (NoSuchMethodException ignored) {}
+                    catch (Throwable ignored) {}
+                }
+            }
+            catch (NoSuchMethodException ignored) {}
+            catch (Throwable ignored) {}
+        }
+        pingLookupInitialized = true;
     }
 
     /**

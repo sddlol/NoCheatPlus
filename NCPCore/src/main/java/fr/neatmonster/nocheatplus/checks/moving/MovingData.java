@@ -206,6 +206,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int velocityAntiKbSamples = 0;
     public Location velocityAntiKbLastLoc = null;
     public double velocityAntiKbBaseY = 0.0;
+    public long velocityAntiKbLastMoveTime = 0L;
+    public long velocityAntiKbPrevDt = 0L;
+    public long velocityAntiKbDtJitterSum = 0L;
+    public int velocityAntiKbDtJitterSamples = 0;
 
     // *----------Timer helper state----------*
     public long timerWindowStartTime = 0L;
@@ -215,6 +219,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public long timerDtSum = 0L;
     public double timerHorizontalSum = 0.0;
     public double timerBuffer = 0.0;
+    public long timerPrevDt = 0L;
+    public long timerDtJitterSum = 0L;
+    public int timerDtJitterSamples = 0;
 
     // *----------Coordinates----------*
     /** Moving trace (to-positions, use ms as time). This is initialized on "playerJoins, i.e. MONITOR, and set to null on playerLeaves." */
@@ -395,6 +402,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         velocityAntiKbSamples = 0;
         velocityAntiKbLastLoc = null;
         velocityAntiKbBaseY = 0.0;
+        velocityAntiKbLastMoveTime = 0L;
+        velocityAntiKbPrevDt = 0L;
+        velocityAntiKbDtJitterSum = 0L;
+        velocityAntiKbDtJitterSamples = 0;
     }
 
     public void clearTimerData() {
@@ -405,6 +416,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         timerDtSum = 0L;
         timerHorizontalSum = 0.0;
         timerBuffer = 0.0;
+        timerPrevDt = 0L;
+        timerDtJitterSum = 0L;
+        timerDtJitterSamples = 0;
     }
 
 

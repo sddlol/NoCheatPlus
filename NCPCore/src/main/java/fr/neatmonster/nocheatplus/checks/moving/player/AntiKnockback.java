@@ -40,20 +40,26 @@ public class AntiKnockback extends Check {
                          final double movedH,
                          final double expectedV,
                          final double movedV,
+                         final double minExpectedH,
+                         final double minExpectedV,
+                         final double minTakeH,
+                         final double minTakeV,
+                         final int pingMs,
+                         final double jitterMs,
                          final MovingData data,
                          final MovingConfig cc,
                          final IPlayerData pData) {
 
-        final boolean badH = expectedH >= cc.velocityMinExpectedHorizontal && ratioH < cc.velocityMinTakeHorizontalRatio;
-        final boolean badV = expectedV >= cc.velocityMinExpectedVertical && ratioV < cc.velocityMinTakeVerticalRatio;
+        final boolean badH = expectedH >= minExpectedH && ratioH < minTakeH;
+        final boolean badV = expectedV >= minExpectedV && ratioV < minTakeV;
 
         if (!badH && !badV) {
             data.velocityVL *= 0.98;
             return false;
         }
 
-        final double deficitH = badH ? (cc.velocityMinTakeHorizontalRatio - ratioH) : 0.0;
-        final double deficitV = badV ? (cc.velocityMinTakeVerticalRatio - ratioV) : 0.0;
+        final double deficitH = badH ? (minTakeH - ratioH) : 0.0;
+        final double deficitV = badV ? (minTakeV - ratioV) : 0.0;
         final double severity = Math.max(deficitH, deficitV) + (badH && badV ? 0.05 : 0.0);
         final double addedVl = Math.max(0.25, severity * 5.0);
         data.velocityVL += addedVl;
@@ -69,9 +75,13 @@ public class AntiKnockback extends Check {
                             + " expH=" + StringUtil.fdec3.format(expectedH)
                             + " gotH=" + StringUtil.fdec3.format(movedH)
                             + " rH=" + StringUtil.fdec3.format(ratioH)
+                            + " minH=" + StringUtil.fdec3.format(minTakeH)
                             + " expV=" + StringUtil.fdec3.format(expectedV)
                             + " gotV=" + StringUtil.fdec3.format(movedV)
-                            + " rV=" + StringUtil.fdec3.format(ratioV));
+                            + " rV=" + StringUtil.fdec3.format(ratioV)
+                            + " minV=" + StringUtil.fdec3.format(minTakeV)
+                            + " ping=" + pingMs
+                            + " jitter=" + StringUtil.fdec3.format(jitterMs));
         }
         return executeActions(vd).willCancel();
     }

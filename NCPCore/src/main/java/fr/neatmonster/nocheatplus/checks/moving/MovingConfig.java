@@ -132,6 +132,11 @@ public class MovingConfig extends ACheckConfig {
     public final double velocityBufferDecay;
     public final boolean velocityCancel;
     public final ActionList velocityActions;
+    public final boolean velocityLatencyAdaptiveActive;
+    public final long velocityLatencyAdaptiveMaxExtraWindowMs;
+    public final long velocityLatencyAdaptiveMaxExtraEvalDelayMs;
+    public final double velocityLatencyAdaptiveMaxRatioRelax;
+    public final double velocityLatencyAdaptiveMaxExpectedBoost;
 
     public final long timerWindowMs;
     public final int timerMinSamples;
@@ -142,6 +147,9 @@ public class MovingConfig extends ACheckConfig {
     public final double timerBufferDecay;
     public final boolean timerCancel;
     public final ActionList timerActions;
+    public final boolean timerLatencyAdaptiveActive;
+    public final double timerLatencyAdaptiveMaxDtRelaxMs;
+    public final double timerLatencyAdaptiveMaxLowRatioRelax;
 
     public final double noFallyOnGround;
     public final double yOnGround;
@@ -265,6 +273,11 @@ public class MovingConfig extends ACheckConfig {
         velocityBufferDecay = config.getDouble(ConfPaths.MOVING_VELOCITY_BUFFERDECAY, 0.0, 5.0, 0.20);
         velocityCancel = config.getBoolean(ConfPaths.MOVING_VELOCITY_CANCEL);
         velocityActions = config.getOptimizedActionList(ConfPaths.MOVING_VELOCITY_ACTIONS, Permissions.MOVING_VELOCITY);
+        velocityLatencyAdaptiveActive = config.getBoolean(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_ACTIVE);
+        velocityLatencyAdaptiveMaxExtraWindowMs = config.getLong(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_MAXEXTRAWINDOWMS, 0L, 2000L, 180L);
+        velocityLatencyAdaptiveMaxExtraEvalDelayMs = config.getLong(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_MAXEXTRAEVALDELAYMS, 0L, 2000L, 120L);
+        velocityLatencyAdaptiveMaxRatioRelax = config.getDouble(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_MAXRATIORELAX, 0.0, 0.5, 0.12);
+        velocityLatencyAdaptiveMaxExpectedBoost = config.getDouble(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_MAXEXPECTEDBOOST, 0.0, 1.0, 0.05);
 
         timerWindowMs = config.getLong(ConfPaths.MOVING_TIMER_WINDOWMS, 100L, 10_000L, 1500L);
         timerMinSamples = (int) config.getInt(ConfPaths.MOVING_TIMER_MINSAMPLES, 1, 200, 14);
@@ -275,6 +288,9 @@ public class MovingConfig extends ACheckConfig {
         timerBufferDecay = config.getDouble(ConfPaths.MOVING_TIMER_BUFFERDECAY, 0.0, 5.0, 0.20);
         timerCancel = config.getBoolean(ConfPaths.MOVING_TIMER_CANCEL);
         timerActions = config.getOptimizedActionList(ConfPaths.MOVING_TIMER_ACTIONS, Permissions.MOVING_TIMER);
+        timerLatencyAdaptiveActive = config.getBoolean(ConfPaths.MOVING_TIMER_LATENCYADAPTIVE_ACTIVE);
+        timerLatencyAdaptiveMaxDtRelaxMs = config.getDouble(ConfPaths.MOVING_TIMER_LATENCYADAPTIVE_MAXDTRELAXMS, 0.0, 50.0, 8.0);
+        timerLatencyAdaptiveMaxLowRatioRelax = config.getDouble(ConfPaths.MOVING_TIMER_LATENCYADAPTIVE_MAXLOWRATIORELAX, 0.0, 0.5, 0.14);
 
         yOnGround = config.getDouble(ConfPaths.MOVING_YONGROUND, Magic.Y_ON_GROUND_MIN, Magic.Y_ON_GROUND_MAX, Magic.Y_ON_GROUND_DEFAULT); // sqrt(1/256), see: NetServerHandler.
         noFallyOnGround = config.getDouble(ConfPaths.MOVING_NOFALL_YONGROUND, Magic.Y_ON_GROUND_MIN, Magic.Y_ON_GROUND_MAX, yOnGround);

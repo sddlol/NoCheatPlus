@@ -531,6 +531,11 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_VELOCITY_BUFFERDECAY, 0.20, 154);
         set(ConfPaths.MOVING_VELOCITY_CANCEL, true, 154);
         set(ConfPaths.MOVING_VELOCITY_ACTIONS, "cancel vl>6 log:movingvelocity:0:5:if vl>25 cancel log:movingvelocity:0:2:if cmdc:kickfly:0:5", 154);
+        set(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_ACTIVE, true, 154);
+        set(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_MAXEXTRAWINDOWMS, 180, 154);
+        set(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_MAXEXTRAEVALDELAYMS, 120, 154);
+        set(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_MAXRATIORELAX, 0.12, 154);
+        set(ConfPaths.MOVING_VELOCITY_LATENCYADAPTIVE_MAXEXPECTEDBOOST, 0.05, 154);
 
         // Timer (Grim-inspired lightweight cadence model)
         set(ConfPaths.MOVING_TIMER_CHECK, "default", 154);
@@ -543,6 +548,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_TIMER_BUFFERDECAY, 0.20, 154);
         set(ConfPaths.MOVING_TIMER_CANCEL, true, 154);
         set(ConfPaths.MOVING_TIMER_ACTIONS, "cancel vl>8 log:timer:0:5:if vl>40 cancel log:timer:0:2:if cmdc:kickpackets:0:5", 154);
+        set(ConfPaths.MOVING_TIMER_LATENCYADAPTIVE_ACTIVE, true, 154);
+        set(ConfPaths.MOVING_TIMER_LATENCYADAPTIVE_MAXDTRELAXMS, 8.0, 154);
+        set(ConfPaths.MOVING_TIMER_LATENCYADAPTIVE_MAXLOWRATIORELAX, 0.14, 154);
 
         // General.
         set(ConfPaths.MOVING_IGNORESTANCE, "default", 154);

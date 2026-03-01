@@ -36,13 +36,17 @@ public class Timer extends Check {
                          final double lowRatio,
                          final int samples,
                          final double moved,
+                         final double effectiveMinMoveDtMs,
+                         final double effectiveMaxLowDtRatio,
+                         final int pingMs,
+                         final double jitterMs,
                          final MovingData data,
                          final MovingConfig cc,
                          final IPlayerData pData) {
 
         final double severity = Math.max(0.0,
-                ((cc.timerMinMoveDtMs - avgDt) / Math.max(1.0, cc.timerMinMoveDtMs))
-                        + Math.max(0.0, lowRatio - cc.timerMaxLowDtRatio));
+                ((effectiveMinMoveDtMs - avgDt) / Math.max(1.0, effectiveMinMoveDtMs))
+                        + Math.max(0.0, lowRatio - effectiveMaxLowDtRatio));
 
         data.timerVL += Math.max(0.25, severity * 4.0);
 
@@ -51,6 +55,10 @@ public class Timer extends Check {
         tags.add("low=" + StringUtil.fdec3.format(lowRatio));
         tags.add("n=" + samples);
         tags.add("dist=" + StringUtil.fdec3.format(moved));
+        tags.add("thr_dt=" + StringUtil.fdec3.format(effectiveMinMoveDtMs));
+        tags.add("thr_low=" + StringUtil.fdec3.format(effectiveMaxLowDtRatio));
+        tags.add("ping=" + pingMs);
+        tags.add("jitter=" + StringUtil.fdec3.format(jitterMs));
 
         final ViolationData vd = new ViolationData(this, player, data.timerVL, severity, cc.timerActions);
         if (vd.needsParameters() || pData.isDebugActive(type)) {

@@ -681,6 +681,12 @@ public abstract class ConfPaths {
     public static final String  MOVING_VELOCITY_BUFFERDECAY                 = MOVING_VELOCITY + "buffer-decay";
     public static final String  MOVING_VELOCITY_CANCEL                      = MOVING_VELOCITY + "cancel";
     public static final String  MOVING_VELOCITY_ACTIONS                     = MOVING_VELOCITY + "actions";
+    private static final String MOVING_VELOCITY_LATENCYADAPTIVE             = MOVING_VELOCITY + "latency-adaptive.";
+    public static final String  MOVING_VELOCITY_LATENCYADAPTIVE_ACTIVE      = MOVING_VELOCITY_LATENCYADAPTIVE + SUB_ACTIVE;
+    public static final String  MOVING_VELOCITY_LATENCYADAPTIVE_MAXEXTRAWINDOWMS = MOVING_VELOCITY_LATENCYADAPTIVE + "max-extra-window-ms";
+    public static final String  MOVING_VELOCITY_LATENCYADAPTIVE_MAXEXTRAEVALDELAYMS = MOVING_VELOCITY_LATENCYADAPTIVE + "max-extra-eval-delay-ms";
+    public static final String  MOVING_VELOCITY_LATENCYADAPTIVE_MAXRATIORELAX = MOVING_VELOCITY_LATENCYADAPTIVE + "max-ratio-relax";
+    public static final String  MOVING_VELOCITY_LATENCYADAPTIVE_MAXEXPECTEDBOOST = MOVING_VELOCITY_LATENCYADAPTIVE + "max-expected-boost";
 
     private static final String MOVING_TIMER                                = MOVING + "timer.";
     public static final String  MOVING_TIMER_CHECK                          = MOVING_TIMER + SUB_ACTIVE;
@@ -693,6 +699,10 @@ public abstract class ConfPaths {
     public static final String  MOVING_TIMER_BUFFERDECAY                    = MOVING_TIMER + "buffer-decay";
     public static final String  MOVING_TIMER_CANCEL                         = MOVING_TIMER + "cancel";
     public static final String  MOVING_TIMER_ACTIONS                        = MOVING_TIMER + "actions";
+    private static final String MOVING_TIMER_LATENCYADAPTIVE                = MOVING_TIMER + "latency-adaptive.";
+    public static final String  MOVING_TIMER_LATENCYADAPTIVE_ACTIVE         = MOVING_TIMER_LATENCYADAPTIVE + SUB_ACTIVE;
+    public static final String  MOVING_TIMER_LATENCYADAPTIVE_MAXDTRELAXMS   = MOVING_TIMER_LATENCYADAPTIVE + "max-dt-relax-ms";
+    public static final String  MOVING_TIMER_LATENCYADAPTIVE_MAXLOWRATIORELAX = MOVING_TIMER_LATENCYADAPTIVE + "max-low-ratio-relax";
 
     public static final String  MOVING_NOFALL_YONGROUND                     = MOVING_NOFALL + "yonground";
     public static final String  MOVING_YONGROUND                            = MOVING + "yonground";
