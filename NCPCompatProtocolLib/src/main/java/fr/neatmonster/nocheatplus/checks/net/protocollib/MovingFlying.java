@@ -299,7 +299,7 @@ public class MovingFlying extends BaseAdapter {
         }
         // Illegal pitch check
         if (!cancel && pData.isCheckActive(CheckType.NET_WRONGTURN, player) 
-            && wrongTurn.check(player, packetData.getPitch(), data, cc)
+            && wrongTurn.check(player, packetData.getPitch(), data, cc, pData)
             && !pData.hasBypass(CheckType.NET_WRONGTURN, player)) {
             cancel = true; // Is it a good idea to cancel or should we just reset the players pitch?
         }

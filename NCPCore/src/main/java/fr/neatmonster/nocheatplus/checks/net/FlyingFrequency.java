@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
@@ -30,6 +31,10 @@ import fr.neatmonster.nocheatplus.utilities.TickTask;
  *
  */
 public class FlyingFrequency extends Check {
+
+    private static final long EVIDENCE_COOLDOWN_MS = 120L;
+    private static final double EVIDENCE_STAGE2_EXCESS = 3.0;
+    private static final double EVIDENCE_STAGE3_EXCESS = 8.0;
 
     public FlyingFrequency() {
         super(CheckType.NET_FLYINGFREQUENCY);
@@ -61,8 +66,35 @@ public class FlyingFrequency extends Check {
             if (amount > cc.flyingFrequencyPPS) {
                 double violation = amount - cc.flyingFrequencyPPS;
                 cancel = executeActions(player, violation, 1.0 / cc.flyingFrequencySeconds, cc.flyingFrequencyActions).willCancel();
+                if (applyEvidenceFusion(player, data, pData, violation)) {
+                    cancel = true;
+                }
             }
         }
         return cancel;
+    }
+
+    private boolean applyEvidenceFusion(final Player player,
+                                        final NetData data,
+                                        final IPlayerData pData,
+                                        final double violation) {
+        if (!pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
+            return false;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - data.lastNetFlyingEvidenceTime < EVIDENCE_COOLDOWN_MS) {
+            return false;
+        }
+        data.lastNetFlyingEvidenceTime = now;
+
+        final float base = (float) Math.max(0.25, Math.min(9.0, 0.8 + violation * 0.7));
+        if (violation < EVIDENCE_STAGE2_EXCESS) {
+            Improbable.feed(player, base * 0.50f, now, pData);
+            return false;
+        }
+        if (violation >= EVIDENCE_STAGE3_EXCESS) {
+            return Improbable.check(player, base * 1.15f, now, "net.flyingfrequency.stage3", pData);
+        }
+        return Improbable.check(player, base * 0.80f, now, "net.flyingfrequency.stage2", pData);
     }
 }

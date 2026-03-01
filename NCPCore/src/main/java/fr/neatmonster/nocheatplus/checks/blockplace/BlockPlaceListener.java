@@ -315,7 +315,7 @@ public class BlockPlaceListener extends CheckListener {
                 if (isInteractBlock && biData.isPassedCheck(CheckType.BLOCKINTERACT_REACH)) {
                     skippedRedundantChecks++;
                 }
-                else if (reachCheck && reach.check(player, eyeHeight, block, data, cc)) {
+                else if (reachCheck && reach.check(player, eyeHeight, block, data, cc, pData)) {
                     cancelled = true;
                 }
             }

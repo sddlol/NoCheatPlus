@@ -41,6 +41,10 @@ import fr.neatmonster.nocheatplus.utilities.math.TrigUtil;
  */
 public class Reach extends Check {
 
+    private static final double EVIDENCE_STAGE2_VL = 8.0;
+    private static final double EVIDENCE_STAGE3_VL = 22.0;
+    private static final long EVIDENCE_COOLDOWN_MS = 120L;
+
     /** The maximum distance allowed to interact with an entity in creative mode. */
     public static final double CREATIVE_DISTANCE = 6D;
 
@@ -126,7 +130,7 @@ public class Reach extends Check {
                 cancel = executeActions(vd).willCancel();
             }
 
-            if (Improbable.check(player, (float) violation / 2f, System.currentTimeMillis(), "fight.reach", pData)){
+            if (applyReachEvidence(player, data, cc, pData, violation, true, "fight.reach.classic")) {
                 cancel = true;
             }
 
@@ -141,7 +145,7 @@ public class Reach extends Check {
                 data.attackPenalty.applyPenalty(cc.reachPenalty / 2);
             }
             cancel = true;
-            Improbable.feed(player, (float) (lenpRel - distanceLimit * reachMod) / 4f, System.currentTimeMillis());
+            applyReachEvidence(player, data, cc, pData, (lenpRel - distanceLimit * reachMod), false, "fight.reach.silent");
         }
         else data.reachVL *= 0.8D; // Player passed the check, reward them.
             
@@ -282,15 +286,8 @@ public class Reach extends Check {
                 cancel = executeActions(vd).willCancel();
             }
             
-            //if (Improbable.check(player, (float) violation / 2f, System.currentTimeMillis(), 
-            //        "fight.reach", pData)){
-            //    cancel = true;
-            //}
-            // TODO: New improbable weight calculations so that weight is not inverse to config weight
-            if (cc.reachImprobableWeight > 0.0f) {
-                if (!cc.reachImprobableFeedOnly && Improbable.check(player, (float) violation / cc.reachImprobableWeight, System.currentTimeMillis(), "fight.reach", pData)) {
-                    cancel = true;
-                }
+            if (applyReachEvidence(player, data, cc, pData, violation, true, "fight.reach.loop")) {
+                cancel = true;
             }
 
             if (cancel && cc.reachPenalty > 0){
@@ -306,10 +303,8 @@ public class Reach extends Check {
 
             cancel = true;
 
-            if (cc.reachImprobableWeight > 0.0f) {
-                Improbable.feed(player, (float) (lenpRel - context.distanceLimit * data.reachMod) / cc.reachImprobableWeight, System.currentTimeMillis());
-            }
-            // Improbable.feed(player, (float) (lenpRel - context.distanceLimit * data.reachMod) / 4f, System.currentTimeMillis());
+            applyReachEvidence(player, data, cc, pData,
+                    (lenpRel - context.distanceLimit * data.reachMod), false, "fight.reach.loop.silent");
         }
         else {
             // Player passed the check, reward them.
@@ -341,6 +336,40 @@ public class Reach extends Check {
         }
 
         return cancel;
+    }
+
+    private boolean applyReachEvidence(final Player player,
+                                       final FightData data,
+                                       final FightConfig cc,
+                                       final IPlayerData pData,
+                                       final double rawEvidence,
+                                       final boolean canEscalateCancel,
+                                       final String tagBase) {
+        if (cc.reachImprobableWeight <= 0.0f || !pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
+            return false;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - data.reachEvidenceTime < EVIDENCE_COOLDOWN_MS) {
+            return false;
+        }
+        data.reachEvidenceTime = now;
+
+        final float base = (float) Math.max(0.25,
+                Math.min(8.0, rawEvidence / Math.max(0.05f, cc.reachImprobableWeight)));
+
+        if (data.reachVL < EVIDENCE_STAGE2_VL) {
+            Improbable.feed(player, base * 0.65f, now, pData);
+            return false;
+        }
+        if (cc.reachImprobableFeedOnly || !canEscalateCancel) {
+            Improbable.feed(player, base * (data.reachVL >= EVIDENCE_STAGE3_VL ? 1.15f : 0.85f), now, pData);
+            return false;
+        }
+        return Improbable.check(player,
+                base * (data.reachVL >= EVIDENCE_STAGE3_VL ? 1.30f : 0.95f),
+                now,
+                tagBase + (data.reachVL >= EVIDENCE_STAGE3_VL ? ".stage3" : ".stage2"),
+                pData);
     }
 
 

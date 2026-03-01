@@ -28,6 +28,7 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.components.registry.feature.TickListener;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
@@ -44,6 +45,10 @@ import fr.neatmonster.nocheatplus.utilities.math.TrigUtil;
  * @author CaptainObvious0
  */
 public class Scaffold extends Check {
+
+    private static final double EVIDENCE_STAGE2_VL = 6.0;
+    private static final double EVIDENCE_STAGE3_VL = 16.0;
+    private static final long EVIDENCE_COOLDOWN_MS = 120L;
 
     final static double MAX_ANGLE = Math.toRadians(90);
     public List<String> tags = new LinkedList<>();
@@ -340,10 +345,43 @@ public class Scaffold extends Check {
      */
     private boolean violation(final String addTags, final int weight, final Player player,
                               final BlockPlaceData data, final IPlayerData pData) {
-        ViolationData vd = new ViolationData(this, player, data.scaffoldVL, weight, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
+        final BlockPlaceConfig cc = pData.getGenericInstance(BlockPlaceConfig.class);
+        ViolationData vd = new ViolationData(this, player, data.scaffoldVL, weight, cc.scaffoldActions);
         tags.add(addTags);
         if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
         data.scaffoldVL += weight;
-        return executeActions(vd).willCancel();
+
+        final boolean cancel = executeActions(vd).willCancel();
+        final boolean evidenceCancel = applyScaffoldEvidence(player, data, cc, pData, weight);
+        return cancel || evidenceCancel;
+    }
+
+    private boolean applyScaffoldEvidence(final Player player,
+                                          final BlockPlaceData data,
+                                          final BlockPlaceConfig cc,
+                                          final IPlayerData pData,
+                                          final int weight) {
+        if (cc.scaffoldImprobableWeight <= 0.0f || !pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
+            return false;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - data.scaffoldEvidenceTime < EVIDENCE_COOLDOWN_MS) {
+            return false;
+        }
+        data.scaffoldEvidenceTime = now;
+
+        final float base = (float) Math.max(0.25, Math.min(8.0, weight * cc.scaffoldImprobableWeight));
+        if (data.scaffoldVL < EVIDENCE_STAGE2_VL) {
+            Improbable.feed(player, base * 0.55f, now, pData);
+            return false;
+        }
+        if (cc.scaffoldImprobableFeedOnly) {
+            Improbable.feed(player, base * (data.scaffoldVL >= EVIDENCE_STAGE3_VL ? 1.15f : 0.85f), now, pData);
+            return false;
+        }
+        if (data.scaffoldVL >= EVIDENCE_STAGE3_VL) {
+            return Improbable.check(player, base * 1.20f, now, "blockplace.scaffold.stage3", pData);
+        }
+        return Improbable.check(player, base * 0.85f, now, "blockplace.scaffold.stage2", pData);
     }
 }

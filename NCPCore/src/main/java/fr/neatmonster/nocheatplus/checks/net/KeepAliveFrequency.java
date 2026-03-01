@@ -18,9 +18,14 @@ import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 
 public class KeepAliveFrequency extends Check {
+
+    private static final long EVIDENCE_COOLDOWN_MS = 120L;
+    private static final double EVIDENCE_STAGE2_EXCESS = 1.5;
+    private static final double EVIDENCE_STAGE3_EXCESS = 4.0;
 
     public KeepAliveFrequency() {
         super(CheckType.NET_KEEPALIVEFREQUENCY);
@@ -46,10 +51,35 @@ public class KeepAliveFrequency extends Check {
         if (first > 1f) {
             // Trigger a violation.
             final double vl = Math.max(first - 1f, data.keepAliveFreq.score(1f) - data.keepAliveFreq.numberOfBuckets());
-            if (executeActions(player, vl, 1.0, cc.keepAliveFrequencyActions).willCancel()) {
+            final boolean cancel = executeActions(player, vl, 1.0, cc.keepAliveFrequencyActions).willCancel();
+            if (cancel || applyEvidenceFusion(player, data, pData, vl)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean applyEvidenceFusion(final Player player,
+                                        final NetData data,
+                                        final IPlayerData pData,
+                                        final double violation) {
+        if (!pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
+            return false;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - data.lastNetKeepAliveEvidenceTime < EVIDENCE_COOLDOWN_MS) {
+            return false;
+        }
+        data.lastNetKeepAliveEvidenceTime = now;
+
+        final float base = (float) Math.max(0.25, Math.min(8.0, 0.7 + violation * 0.9));
+        if (violation < EVIDENCE_STAGE2_EXCESS) {
+            Improbable.feed(player, base * 0.50f, now, pData);
+            return false;
+        }
+        if (violation >= EVIDENCE_STAGE3_EXCESS) {
+            return Improbable.check(player, base * 1.20f, now, "net.keepalivefrequency.stage3", pData);
+        }
+        return Improbable.check(player, base * 0.85f, now, "net.keepalivefrequency.stage2", pData);
     }
 }

@@ -30,6 +30,7 @@ import fr.neatmonster.nocheatplus.checks.net.NetConfig;
 import fr.neatmonster.nocheatplus.checks.net.NetData;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.utilities.moving.MovingUtil;
 
 /**
  * Limit keep alive packet frequency, set lastKeepAliveTime (even if disabled,
@@ -80,6 +81,7 @@ public class KeepAliveAdapter extends BaseAdapter {
         if (frequencyCheck.isEnabled(player, pData) 
             && frequencyCheck.check(player, time, data, cc, pData)) {
             event.setCancelled(true);
+            MovingUtil.applyAggressiveSetBack(player, pData, "[NetKeepAliveCancel] ");
         }
     }
 

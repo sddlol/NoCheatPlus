@@ -20,10 +20,14 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
-import fr.neatmonster.nocheatplus.utilities.TickTask;
 
 public class AttackFrequency extends Check {
+
+    private static final long EVIDENCE_COOLDOWN_MS = 120L;
+    private static final double EVIDENCE_STAGE2_EXCESS = 3.0;
+    private static final double EVIDENCE_STAGE3_EXCESS = 7.0;
 
     public AttackFrequency() {
         super(CheckType.NET_ATTACKFREQUENCY);
@@ -102,13 +106,40 @@ public class AttackFrequency extends Check {
                 vd.setParameter(ParameterName.TAGS, tags);
             }
             cancel = executeActions(vd).willCancel();
-            // Feed Improbable.
-            if (cc.attackFrequencyImprobableWeight > 0.0f) {
-            	TickTask.requestImprobableUpdate(player.getUniqueId(), cc.attackFrequencyImprobableWeight);
+            if (applyEvidenceFusion(player, data, cc, pData, maxVL, tags)) {
+                cancel = true;
             }
         }
 
         return cancel;
+    }
+
+    private boolean applyEvidenceFusion(final Player player,
+                                        final NetData data,
+                                        final NetConfig cc,
+                                        final IPlayerData pData,
+                                        final double maxVl,
+                                        final String tags) {
+        if (cc.attackFrequencyImprobableWeight <= 0.0f || !pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
+            return false;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - data.lastNetAttackEvidenceTime < EVIDENCE_COOLDOWN_MS) {
+            return false;
+        }
+        data.lastNetAttackEvidenceTime = now;
+
+        final float base = (float) Math.max(0.25,
+                Math.min(10.0, maxVl / Math.max(0.05f, cc.attackFrequencyImprobableWeight)));
+
+        if (maxVl < EVIDENCE_STAGE2_EXCESS) {
+            Improbable.feed(player, base * 0.55f, now, pData);
+            return false;
+        }
+        if (maxVl >= EVIDENCE_STAGE3_EXCESS) {
+            return Improbable.check(player, base * 1.20f, now, "net.attackfrequency.stage3." + tags, pData);
+        }
+        return Improbable.check(player, base * 0.85f, now, "net.attackfrequency.stage2." + tags, pData);
     }
 
 }

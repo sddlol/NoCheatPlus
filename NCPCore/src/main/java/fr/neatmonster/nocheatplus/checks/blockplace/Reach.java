@@ -23,12 +23,18 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
+import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 
 /**
  * The Reach check will find out if a player places a block too far away.
  */
 public class Reach extends Check {
+
+    private static final double EVIDENCE_STAGE2_VL = 4.0;
+    private static final double EVIDENCE_STAGE3_VL = 10.0;
+    private static final long EVIDENCE_COOLDOWN_MS = 120L;
 
     /** Fallback defaults (can be overridden in config). */
     public static final double CREATIVE_DISTANCE = 5.6D;
@@ -55,7 +61,7 @@ public class Reach extends Check {
      * @param cc
      * @return true, if successful
      */
-    public boolean check(final Player player, final double eyeHeight, final Block block, final BlockPlaceData data, final BlockPlaceConfig cc) {
+    public boolean check(final Player player, final double eyeHeight, final Block block, final BlockPlaceData data, final BlockPlaceConfig cc, final IPlayerData pData) {
         boolean cancel = false;
 
         final double baseLimit = player.getGameMode() == GameMode.CREATIVE
@@ -90,6 +96,9 @@ public class Reach extends Check {
             final ViolationData vd = new ViolationData(this, player, data.reachVL, violation, cc.reachActions);
             vd.setParameter(ParameterName.REACH_DISTANCE, StringUtil.fdec3.format(distance));
             cancel = executeActions(vd).willCancel();
+            if (applyEvidenceFusion(player, data, pData, violation)) {
+                cancel = true;
+            }
         }
         // Player passed the check, reward them
         else {
@@ -99,6 +108,30 @@ public class Reach extends Check {
         // Cleanup.
         useLoc.setWorld(null);
         return cancel;
+    }
+
+    private boolean applyEvidenceFusion(final Player player,
+                                        final BlockPlaceData data,
+                                        final IPlayerData pData,
+                                        final double violation) {
+        if (!pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
+            return false;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - data.reachEvidenceTime < EVIDENCE_COOLDOWN_MS) {
+            return false;
+        }
+        data.reachEvidenceTime = now;
+
+        final float base = (float) Math.max(0.3, Math.min(6.0, violation * 1.8));
+        if (data.reachVL < EVIDENCE_STAGE2_VL) {
+            Improbable.feed(player, base * 0.55f, now, pData);
+            return false;
+        }
+        if (data.reachVL >= EVIDENCE_STAGE3_VL) {
+            return Improbable.check(player, base * 1.20f, now, "blockplace.reach.stage3", pData);
+        }
+        return Improbable.check(player, base * 0.85f, now, "blockplace.reach.stage2", pData);
     }
 
     private static double clamp(final double v, final double min, final double max) {

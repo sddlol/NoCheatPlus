@@ -72,6 +72,11 @@ public class NetData extends ACheckData {
 	
     // Wrong Turn
     public double wrongTurnVL = 0;
+    public long lastNetAttackEvidenceTime = 0L;
+    public long lastNetFlyingEvidenceTime = 0L;
+    public long lastNetWrongTurnEvidenceTime = 0L;
+    public long lastNetKeepAliveEvidenceTime = 0L;
+    public long lastNetPacketEvidenceTime = 0L;
     
     // ToggleFrequency
     public double toggleFrequencyVL = 0;

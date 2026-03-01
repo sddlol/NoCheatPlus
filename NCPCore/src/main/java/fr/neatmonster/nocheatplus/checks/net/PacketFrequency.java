@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
+import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
 
 /**
@@ -29,6 +31,10 @@ import fr.neatmonster.nocheatplus.utilities.TickTask;
  *
  */
 public class PacketFrequency extends Check {
+
+    private static final long EVIDENCE_COOLDOWN_MS = 120L;
+    private static final double EVIDENCE_STAGE2_EXCESS = 15.0;
+    private static final double EVIDENCE_STAGE3_EXCESS = 60.0;
 
     public PacketFrequency() {
         super(CheckType.NET_PACKETFREQUENCY);
@@ -44,7 +50,7 @@ public class PacketFrequency extends Check {
      *            
      * @return If to cancel a packet event.
      */
-    public boolean check(final Player player, final NetData data, final NetConfig cc) {
+    public boolean check(final Player player, final NetData data, final NetConfig cc, final IPlayerData pData) {
         data.packetFrequency.add(System.currentTimeMillis(), 1f);
         final long fDur = data.packetFrequency.bucketDuration() * data.packetFrequency.numberOfBuckets();
         double amount = data.packetFrequency.score(1f) * 1000f / (float) fDur;
@@ -54,12 +60,38 @@ public class PacketFrequency extends Check {
         if (amount > cc.packetFrequencyPacketsPerSecond) {
             amount /= TickTask.getLag(fDur);
             if (amount > cc.packetFrequencyPacketsPerSecond) {
-                if (executeActions(player, amount - cc.packetFrequencyPacketsPerSecond, 1.0, cc.packetFrequencyActions).willCancel()) {
+                final double violation = amount - cc.packetFrequencyPacketsPerSecond;
+                final boolean cancel = executeActions(player, violation, 1.0, cc.packetFrequencyActions).willCancel();
+                if (cancel || applyEvidenceFusion(player, data, pData, violation)) {
                     return true;
                 }
             }
         }
         return false; // Cancel state.
+    }
+
+    private boolean applyEvidenceFusion(final Player player,
+                                        final NetData data,
+                                        final IPlayerData pData,
+                                        final double violation) {
+        if (!pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
+            return false;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - data.lastNetPacketEvidenceTime < EVIDENCE_COOLDOWN_MS) {
+            return false;
+        }
+        data.lastNetPacketEvidenceTime = now;
+
+        final float base = (float) Math.max(0.35, Math.min(15.0, 0.8 + violation * 0.12));
+        if (violation < EVIDENCE_STAGE2_EXCESS) {
+            Improbable.feed(player, base * 0.50f, now, pData);
+            return false;
+        }
+        if (violation >= EVIDENCE_STAGE3_EXCESS) {
+            return Improbable.check(player, base * 1.25f, now, "net.packetfrequency.stage3", pData);
+        }
+        return Improbable.check(player, base * 0.90f, now, "net.packetfrequency.stage2", pData);
     }
 
     /**

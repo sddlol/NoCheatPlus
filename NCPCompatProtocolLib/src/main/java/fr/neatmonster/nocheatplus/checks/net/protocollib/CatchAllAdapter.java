@@ -86,7 +86,7 @@ public class CatchAllAdapter extends BaseAdapter {
         if (packetFrequency.isEnabled(player, pData)) {
             final NetConfig cc = pData.getGenericInstance(NetConfig.class);
             final NetData data = pData.getGenericInstance(NetData.class);
-            if (packetFrequency.check(player, data, cc)) {
+            if (packetFrequency.check(player, data, cc, pData)) {
                 event.setCancelled(true);
                 MovingUtil.applyAggressiveSetBack(player, pData, "[NetPacketFreqCancel] ");
             }
