@@ -33,6 +33,37 @@ Updated-NoCheatPlus 是经典反作弊插件 NoCheatPlus 的延续分支。
 2. 放到服务器 `plugins/` 目录
 3. 重启服务器（不建议 `/reload`）
 
+## 快速配置（本 fork 的证据 profile）
+
+本 fork 增加了统一的证据融合配置：`checks.combined.evidence.*`（用于 staged Improbable 升级）。
+
+**示例：全局 strict + 局部 balanced 覆盖**
+
+```yaml
+checks:
+  combined:
+    evidence:
+      profile: strict
+      overrides:
+        moving-timer: balanced
+        net-keepalivefrequency: balanced
+      debug:
+        active: true
+        min-interval-ms: 1500
+```
+
+可覆盖键：
+- `moving-timer`、`moving-velocity`
+- `fight-reach`
+- `blockplace-reach`、`blockplace-scaffold`
+- `net-attackfrequency`、`net-flyingfrequency`、`net-wrongturn`、`net-keepalivefrequency`、`net-packetfrequency`
+
+取值：
+- 全局 `profile`：`balanced` / `strict`
+- `overrides.*`：`inherit` / `balanced` / `strict`
+
+详细说明：Docs → [Combined Improbable](https://github.com/sddlol/Docs/blob/master/zh-CN/Settings/Checks/%5BCombined%5D-Improbable.md)
+
 ## 构建
 
 ```bash

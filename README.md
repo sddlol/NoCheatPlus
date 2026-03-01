@@ -37,6 +37,37 @@ Installation
 * Drop `NoCheatPlus.jar` into the `plugins/` folder.
 * Start your Spigot/CraftBukkit server. (Using /reload can have unwanted side effects with players still online, but also with complex plugins and cross-plugin dependencies, so we don't recommend it. Usually it should work with NCP.)
 
+Quick config (fork staged evidence profiles)
+---------
+This fork adds a centralized evidence profile system (`checks.combined.evidence.*`) for staged Improbable escalation.
+
+**Example: global strict with selected balanced overrides**
+
+```yaml
+checks:
+  combined:
+    evidence:
+      profile: strict
+      overrides:
+        moving-timer: balanced
+        net-keepalivefrequency: balanced
+      debug:
+        active: true
+        min-interval-ms: 1500
+```
+
+Available override keys:
+- `moving-timer`, `moving-velocity`
+- `fight-reach`
+- `blockplace-reach`, `blockplace-scaffold`
+- `net-attackfrequency`, `net-flyingfrequency`, `net-wrongturn`, `net-keepalivefrequency`, `net-packetfrequency`
+
+Values:
+- Global `profile`: `balanced` / `strict`
+- Per-check `overrides.*`: `inherit` / `balanced` / `strict`
+
+More details: Docs → [Combined Improbable](https://github.com/sddlol/Docs/blob/master/Settings/Checks/%5BCombined%5D-Improbable.md)
+
 Hints
 ---------
 * Be sure that your Spigot/CraftBukkit and NoCheatPlus versions match together. The latest version of NCP is compatible with a wide range of CraftBukkit/Spigot versions.
