@@ -32,9 +32,9 @@ If you redistribute builds from this fork, please also include:
 
 Installation
 ---------
-* [Install a Spigot server](https://github.com/Updated-NoCheatPlus/NoCheatPlus/#obtain-a-build-of-spigot)
-* [Download NoCheatPlus](https://github.com/Updated-NoCheatPlus/NoCheatPlus/#download)
-* Drop the NoCheatPlus.jar in to the plugins folder.
+* Install a Spigot/Paper server.
+* Download this fork from **[Releases](https://github.com/sddlol/NoCheatPlus/releases)**.
+* Drop `NoCheatPlus.jar` into the `plugins/` folder.
 * Start your Spigot/CraftBukkit server. (Using /reload can have unwanted side effects with players still online, but also with complex plugins and cross-plugin dependencies, so we don't recommend it. Usually it should work with NCP.)
 
 Hints
@@ -48,10 +48,8 @@ Links
 ---------
 
 ###### Download
-* [Jenkins (current)](https://ci.codemc.io/job/Updated-NoCheatPlus/job/Updated-NoCheatPlus/)
-* [BukkitDev (legacy)](https://dev.bukkit.org/projects/nocheatplus/files/)
-* [SpigotMC (legacy)](https://www.spigotmc.org/resources/nocheatplus2015-07-25.26/updates)
-* [Jenkins (legacy)](https://ci.md-5.net/job/NoCheatPlus/)
+* [GitHub Releases (this fork)](https://github.com/sddlol/NoCheatPlus/releases)
+* [Upstream Jenkins (reference)](https://ci.codemc.io/job/Updated-NoCheatPlus/job/Updated-NoCheatPlus/)
 
 ###### Support and Documentation
 * [Issues/Tickets](https://github.com/Updated-NoCheatPlus/NoCheatPlus/issues)

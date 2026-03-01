@@ -29,7 +29,7 @@ Updated-NoCheatPlus 是经典反作弊插件 NoCheatPlus 的延续分支。
 
 ## 安装（简版）
 
-1. 下载构建好的 `NoCheatPlus.jar`
+1. 从本 fork 的 **[Releases](https://github.com/sddlol/NoCheatPlus/releases)** 下载 `NoCheatPlus.jar`
 2. 放到服务器 `plugins/` 目录
 3. 重启服务器（不建议 `/reload`）
 
