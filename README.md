@@ -4,6 +4,8 @@ NoCheatPlus
 [![Build Status](https://ci.codemc.io/buildStatus/icon?job=Updated-NoCheatPlus%2FUpdated-NoCheatPlus)](https://ci.codemc.io/job/Updated-NoCheatPlus/job/Updated-NoCheatPlus/)
 [![Discord](https://img.shields.io/discord/598285007496151098?label=discord&logo=discord)](https://discord.gg/NASKHYc)
 
+Language: **English** | [简体中文](./README.zh-CN.md)
+
 Updated-NoCheatPlus is a continuation of the famous anti-cheat plugin NoCheatPlus, introduced by [NeatMonster](https://github.com/NeatMonster) and [Asofold](https://github.com/asofold) building on the code base of [NoCheat](https://github.com/md-5/NoCheat), created by [Evenprime](https://github.com/Evenprime).
 
 NoCheatPlus attempts to enforce "vanilla Minecraft" mechanics, as well as preventing players from abusing weaknesses in Minecraft or its protocol, making your server more safe. Organized in different sections, various checks are performed to test players doing, covering a wide range including flying and speeding, fighting hacks, fast block breaking and nukers, inventory hacks, chat spam and other types of malicious behaviour.
@@ -27,21 +29,6 @@ If you redistribute builds from this fork, please also include:
 - LICENSE.txt (GPLv3)
 - Source code link to this fork
 - A clear note that your build is forked/modified
-
-Fork Notice（中文，GPLv3 署名与合规）
----------
-本仓库是基于 NoCheatPlus 的社区 fork，可能包含维护者的二次修改。
-
-为最大程度尊重原作者并符合 GPLv3：
-- 派生代码继续使用 **GPLv3**。
-- 保留并明确标注上游作者与维护者署名。
-- 修改代码保持开源可获取，不进行闭源衍生分发。
-- 不宣称上游项目归属；本仓库仅为 fork 与维护分支。
-
-分发本 fork 的构建产物时，请同时提供：
-- LICENSE.txt（GPLv3）
-- 本 fork 源码链接
-- 明确的“fork/已修改”说明
 
 Installation
 ---------
