@@ -28,6 +28,21 @@ If you redistribute builds from this fork, please also include:
 - Source code link to this fork
 - A clear note that your build is forked/modified
 
+Fork Notice（中文，GPLv3 署名与合规）
+---------
+本仓库是基于 NoCheatPlus 的社区 fork，可能包含维护者的二次修改。
+
+为最大程度尊重原作者并符合 GPLv3：
+- 派生代码继续使用 **GPLv3**。
+- 保留并明确标注上游作者与维护者署名。
+- 修改代码保持开源可获取，不进行闭源衍生分发。
+- 不宣称上游项目归属；本仓库仅为 fork 与维护分支。
+
+分发本 fork 的构建产物时，请同时提供：
+- LICENSE.txt（GPLv3）
+- 本 fork 源码链接
+- 明确的“fork/已修改”说明
+
 Installation
 ---------
 * [Install a Spigot server](https://github.com/Updated-NoCheatPlus/NoCheatPlus/#obtain-a-build-of-spigot)
