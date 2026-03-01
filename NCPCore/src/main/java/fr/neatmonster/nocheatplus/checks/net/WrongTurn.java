@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
+import fr.neatmonster.nocheatplus.checks.combined.EvidenceFusionProfile;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 
@@ -69,15 +71,26 @@ public class WrongTurn extends Check {
         }
         data.lastNetWrongTurnEvidenceTime = now;
 
+        final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float pitchExcess = (float) Math.max(0.0, Math.max(pitch - 90.0f, -90.0f - pitch));
         final float base = Math.max(0.5f, Math.min(12.0f, 0.8f + pitchExcess * 0.12f));
-        if (data.wrongTurnVL < EVIDENCE_STAGE2_VL) {
-            Improbable.feed(player, base * 0.55f, now, pData);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig);
+        if (data.wrongTurnVL < stage2Threshold) {
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig), now, pData);
             return false;
         }
-        if (data.wrongTurnVL >= EVIDENCE_STAGE3_VL) {
-            return Improbable.check(player, base * 1.25f, now, "net.wrongturn.stage3", pData);
+        if (data.wrongTurnVL >= stage3Threshold) {
+            return Improbable.check(player,
+                    EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig),
+                    now,
+                    "net.wrongturn.stage3",
+                    pData);
         }
-        return Improbable.check(player, base * 0.90f, now, "net.wrongturn.stage2", pData);
+        return Improbable.check(player,
+                EvidenceFusionProfile.stage2Weight(base * 0.90f, combinedConfig),
+                now,
+                "net.wrongturn.stage2",
+                pData);
     }
 }

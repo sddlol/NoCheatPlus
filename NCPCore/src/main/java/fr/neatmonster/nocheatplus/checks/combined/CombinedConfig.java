@@ -42,6 +42,8 @@ public class CombinedConfig extends ACheckConfig {
     /** Do mind that this flag is not used by all components. */
     public final float          improbableLevel;
     public final ActionList     improbableActions;
+    /** Evidence fusion profile: balanced (default) or strict. */
+    public final String         evidenceProfile;
 
     // Invulnerable management.
     public final boolean                    invulnerableCheck;
@@ -69,6 +71,7 @@ public class CombinedConfig extends ACheckConfig {
 
         improbableLevel = (float) config.getDouble(ConfPaths.COMBINED_IMPROBABLE_LEVEL);
         improbableActions = config.getOptimizedActionList(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, Permissions.COMBINED_IMPROBABLE);
+        evidenceProfile = EvidenceFusionProfile.normalizeProfile(config.getString(ConfPaths.COMBINED_EVIDENCE_PROFILE, EvidenceFusionProfile.PROFILE_BALANCED));
 
         invulnerableCheck = config.getBoolean(ConfPaths.COMBINED_INVULNERABLE_CHECK);
         invulnerableInitialTicksJoin = config.getInt(ConfPaths.COMBINED_INVULNERABLE_INITIALTICKS_JOIN);

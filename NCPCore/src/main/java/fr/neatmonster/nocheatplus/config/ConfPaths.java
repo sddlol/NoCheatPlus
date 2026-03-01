@@ -444,6 +444,8 @@ public abstract class ConfPaths {
     public static final String  COMBINED_IMPROBABLE_CHECK                = COMBINED_IMPROBABLE + SUB_ACTIVE;
     public static final String  COMBINED_IMPROBABLE_LEVEL                = COMBINED_IMPROBABLE + "level";
     public static final String  COMBINED_IMPROBABLE_ACTIONS              = COMBINED_IMPROBABLE + "actions";
+    private static final String COMBINED_EVIDENCE                        = COMBINED + "evidence.";
+    public static final String  COMBINED_EVIDENCE_PROFILE                = COMBINED_EVIDENCE + "profile";
 
     private static final String COMBINED_INVULNERABLE                       = COMBINED + "invulnerable.";
     public static final String  COMBINED_INVULNERABLE_CHECK                 = COMBINED_INVULNERABLE + SUB_ACTIVE;

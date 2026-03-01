@@ -28,6 +28,8 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
+import fr.neatmonster.nocheatplus.checks.combined.EvidenceFusionProfile;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.moving.location.tracking.LocationTrace.ITraceEntry;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
@@ -354,21 +356,33 @@ public class Reach extends Check {
         }
         data.reachEvidenceTime = now;
 
+        final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float base = (float) Math.max(0.25,
                 Math.min(8.0, rawEvidence / Math.max(0.05f, cc.reachImprobableWeight)));
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig);
 
-        if (data.reachVL < EVIDENCE_STAGE2_VL) {
-            Improbable.feed(player, base * 0.65f, now, pData);
+        if (data.reachVL < stage2Threshold) {
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.65f, combinedConfig), now, pData);
             return false;
         }
         if (cc.reachImprobableFeedOnly || !canEscalateCancel) {
-            Improbable.feed(player, base * (data.reachVL >= EVIDENCE_STAGE3_VL ? 1.15f : 0.85f), now, pData);
+            final boolean stage3 = data.reachVL >= stage3Threshold;
+            Improbable.feed(player,
+                    stage3
+                            ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig)
+                            : EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig),
+                    now,
+                    pData);
             return false;
         }
+        final boolean stage3 = data.reachVL >= stage3Threshold;
         return Improbable.check(player,
-                base * (data.reachVL >= EVIDENCE_STAGE3_VL ? 1.30f : 0.95f),
+                stage3
+                        ? EvidenceFusionProfile.stage3Weight(base * 1.30f, combinedConfig)
+                        : EvidenceFusionProfile.stage2Weight(base * 0.95f, combinedConfig),
                 now,
-                tagBase + (data.reachVL >= EVIDENCE_STAGE3_VL ? ".stage3" : ".stage2"),
+                tagBase + (stage3 ? ".stage3" : ".stage2"),
                 pData);
     }
 

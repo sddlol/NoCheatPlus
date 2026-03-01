@@ -307,6 +307,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_IMPROBABLE_CHECK , "default", 154);
         set(ConfPaths.COMBINED_IMPROBABLE_LEVEL, 400, 154);
         set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>50 log:improbable:8:9:if cancel vl>1500 cancel log:improbable:0:10:if cmdc:kickimprobable:0:5", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_PROFILE, "balanced", 154);
         // Invulnerable
         set(ConfPaths.COMBINED_INVULNERABLE_CHECK, true, 154); // Not a check type yet.
         set(ConfPaths.COMBINED_INVULNERABLE_TRIGGERS_ALWAYS, false, 154);

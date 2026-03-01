@@ -20,6 +20,8 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
+import fr.neatmonster.nocheatplus.checks.combined.EvidenceFusionProfile;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 
@@ -129,17 +131,28 @@ public class AttackFrequency extends Check {
         }
         data.lastNetAttackEvidenceTime = now;
 
+        final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float base = (float) Math.max(0.25,
                 Math.min(10.0, maxVl / Math.max(0.05f, cc.attackFrequencyImprobableWeight)));
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_EXCESS, combinedConfig);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_EXCESS, combinedConfig);
 
-        if (maxVl < EVIDENCE_STAGE2_EXCESS) {
-            Improbable.feed(player, base * 0.55f, now, pData);
+        if (maxVl < stage2Threshold) {
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig), now, pData);
             return false;
         }
-        if (maxVl >= EVIDENCE_STAGE3_EXCESS) {
-            return Improbable.check(player, base * 1.20f, now, "net.attackfrequency.stage3." + tags, pData);
+        if (maxVl >= stage3Threshold) {
+            return Improbable.check(player,
+                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig),
+                    now,
+                    "net.attackfrequency.stage3." + tags,
+                    pData);
         }
-        return Improbable.check(player, base * 0.85f, now, "net.attackfrequency.stage2." + tags, pData);
+        return Improbable.check(player,
+                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig),
+                now,
+                "net.attackfrequency.stage2." + tags,
+                pData);
     }
 
 }

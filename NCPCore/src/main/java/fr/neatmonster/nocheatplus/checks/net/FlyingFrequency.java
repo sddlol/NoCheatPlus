@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
+import fr.neatmonster.nocheatplus.checks.combined.EvidenceFusionProfile;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
@@ -87,14 +89,25 @@ public class FlyingFrequency extends Check {
         }
         data.lastNetFlyingEvidenceTime = now;
 
+        final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float base = (float) Math.max(0.25, Math.min(9.0, 0.8 + violation * 0.7));
-        if (violation < EVIDENCE_STAGE2_EXCESS) {
-            Improbable.feed(player, base * 0.50f, now, pData);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_EXCESS, combinedConfig);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_EXCESS, combinedConfig);
+        if (violation < stage2Threshold) {
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.50f, combinedConfig), now, pData);
             return false;
         }
-        if (violation >= EVIDENCE_STAGE3_EXCESS) {
-            return Improbable.check(player, base * 1.15f, now, "net.flyingfrequency.stage3", pData);
+        if (violation >= stage3Threshold) {
+            return Improbable.check(player,
+                    EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig),
+                    now,
+                    "net.flyingfrequency.stage3",
+                    pData);
         }
-        return Improbable.check(player, base * 0.80f, now, "net.flyingfrequency.stage2", pData);
+        return Improbable.check(player,
+                EvidenceFusionProfile.stage2Weight(base * 0.80f, combinedConfig),
+                now,
+                "net.flyingfrequency.stage2",
+                pData);
     }
 }

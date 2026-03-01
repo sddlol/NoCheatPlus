@@ -28,6 +28,8 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
+import fr.neatmonster.nocheatplus.checks.combined.EvidenceFusionProfile;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.components.registry.feature.TickListener;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
@@ -370,18 +372,35 @@ public class Scaffold extends Check {
         }
         data.scaffoldEvidenceTime = now;
 
+        final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float base = (float) Math.max(0.25, Math.min(8.0, weight * cc.scaffoldImprobableWeight));
-        if (data.scaffoldVL < EVIDENCE_STAGE2_VL) {
-            Improbable.feed(player, base * 0.55f, now, pData);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig);
+        if (data.scaffoldVL < stage2Threshold) {
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig), now, pData);
             return false;
         }
+        final boolean stage3 = data.scaffoldVL >= stage3Threshold;
         if (cc.scaffoldImprobableFeedOnly) {
-            Improbable.feed(player, base * (data.scaffoldVL >= EVIDENCE_STAGE3_VL ? 1.15f : 0.85f), now, pData);
+            Improbable.feed(player,
+                    stage3
+                            ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig)
+                            : EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig),
+                    now,
+                    pData);
             return false;
         }
-        if (data.scaffoldVL >= EVIDENCE_STAGE3_VL) {
-            return Improbable.check(player, base * 1.20f, now, "blockplace.scaffold.stage3", pData);
+        if (stage3) {
+            return Improbable.check(player,
+                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig),
+                    now,
+                    "blockplace.scaffold.stage3",
+                    pData);
         }
-        return Improbable.check(player, base * 0.85f, now, "blockplace.scaffold.stage2", pData);
+        return Improbable.check(player,
+                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig),
+                now,
+                "blockplace.scaffold.stage2",
+                pData);
     }
 }

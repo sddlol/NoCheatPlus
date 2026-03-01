@@ -15,6 +15,8 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
+import fr.neatmonster.nocheatplus.checks.combined.EvidenceFusionProfile;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
@@ -81,15 +83,26 @@ public class Timer extends Check {
             return false;
         }
         final long now = System.currentTimeMillis();
-        final double base = Math.max(0.4, Math.min(7.0, 0.7 + severity * 5.0));
+        final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
+        final float base = (float) Math.max(0.4, Math.min(7.0, 0.7 + severity * 5.0));
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig);
 
-        if (data.timerVL < EVIDENCE_STAGE2_VL) {
-            Improbable.feed(player, (float) (base * 0.5), now, pData);
+        if (data.timerVL < stage2Threshold) {
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.5f, combinedConfig), now, pData);
             return false;
         }
-        if (data.timerVL >= EVIDENCE_STAGE3_VL) {
-            return Improbable.check(player, (float) (base * 1.20), now, "moving.timer.stage3", pData);
+        if (data.timerVL >= stage3Threshold) {
+            return Improbable.check(player,
+                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig),
+                    now,
+                    "moving.timer.stage3",
+                    pData);
         }
-        return Improbable.check(player, (float) (base * 0.80), now, "moving.timer.stage2", pData);
+        return Improbable.check(player,
+                EvidenceFusionProfile.stage2Weight(base * 0.80f, combinedConfig),
+                now,
+                "moving.timer.stage2",
+                pData);
     }
 }
