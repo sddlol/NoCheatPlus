@@ -86,22 +86,31 @@ public class PacketFrequency extends Check {
         data.lastNetPacketEvidenceTime = now;
 
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
+        final String overrideProfile = combinedConfig == null
+                ? EvidenceFusionProfile.PROFILE_INHERIT
+                : combinedConfig.evidenceProfileNetPacketFrequency;
         final float base = (float) Math.max(0.35, Math.min(15.0, 0.8 + violation * 0.12));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_EXCESS, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_EXCESS, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_EXCESS, combinedConfig, overrideProfile);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_EXCESS, combinedConfig, overrideProfile);
         if (violation < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.50f, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency), now, pData);
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "net.packetfrequency", violation, base, "feed");
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.50f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
         if (violation >= stage3Threshold) {
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "net.packetfrequency", violation, base, "stage3");
             return Improbable.check(player,
-                    EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency),
+                    EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig, overrideProfile),
                     now,
                     "net.packetfrequency.stage3",
                     pData);
         }
+        EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                "net.packetfrequency", violation, base, "stage2");
         return Improbable.check(player,
-                EvidenceFusionProfile.stage2Weight(base * 0.90f, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency),
+                EvidenceFusionProfile.stage2Weight(base * 0.90f, combinedConfig, overrideProfile),
                 now,
                 "net.packetfrequency.stage2",
                 pData);

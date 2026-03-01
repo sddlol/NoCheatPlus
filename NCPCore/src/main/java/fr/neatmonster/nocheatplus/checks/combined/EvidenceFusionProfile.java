@@ -6,6 +6,12 @@
  */
 package fr.neatmonster.nocheatplus.checks.combined;
 
+import org.bukkit.entity.Player;
+
+import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.utilities.CheckUtils;
+
 /**
  * Centralized profile tuning for staged evidence fusion.
  * <p>
@@ -53,6 +59,32 @@ public final class EvidenceFusionProfile {
             return normalizedOverride;
         }
         return cc == null ? PROFILE_BALANCED : normalizeProfile(cc.evidenceProfile);
+    }
+
+    public static String effectiveProfile(final CombinedConfig cc, final String overrideProfile) {
+        return resolveProfile(cc, overrideProfile);
+    }
+
+    public static void debugProfile(final Player player,
+                                    final IPlayerData pData,
+                                    final CheckType checkType,
+                                    final CombinedConfig cc,
+                                    final String overrideProfile,
+                                    final String source,
+                                    final double vl,
+                                    final float base,
+                                    final String stage) {
+        if (pData == null || !pData.isDebugActive(checkType)) {
+            return;
+        }
+        final String effective = effectiveProfile(cc, overrideProfile);
+        CheckUtils.debug(player, checkType,
+                "[EvidenceProfile] source=" + source
+                        + " effective=" + effective
+                        + " override=" + normalizeOverride(overrideProfile)
+                        + " stage=" + stage
+                        + " vl=" + String.format("%.3f", vl)
+                        + " base=" + String.format("%.3f", base));
     }
 
     public static boolean isStrict(final CombinedConfig cc) {

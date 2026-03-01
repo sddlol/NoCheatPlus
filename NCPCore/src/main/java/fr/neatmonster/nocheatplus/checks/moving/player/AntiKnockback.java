@@ -105,23 +105,32 @@ public class AntiKnockback extends Check {
         }
         final long now = System.currentTimeMillis();
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
+        final String overrideProfile = combinedConfig == null
+                ? EvidenceFusionProfile.PROFILE_INHERIT
+                : combinedConfig.evidenceProfileMovingVelocity;
         final float base = (float) Math.max(0.5, Math.min(8.0, 0.8 + severity * 6.0 + (badH && badV ? 0.6 : 0.0)));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, combinedConfig.evidenceProfileMovingVelocity);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, combinedConfig.evidenceProfileMovingVelocity);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, overrideProfile);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, overrideProfile);
 
         if (data.velocityVL < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, combinedConfig.evidenceProfileMovingVelocity), now, pData);
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "moving.velocity", data.velocityVL, base, "feed");
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
         if (data.velocityVL >= stage3Threshold) {
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "moving.velocity", data.velocityVL, base, "stage3");
             return Improbable.check(player,
-                    EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig, combinedConfig.evidenceProfileMovingVelocity),
+                    EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig, overrideProfile),
                     now,
                     "moving.velocity.stage3",
                     pData);
         }
+        EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                "moving.velocity", data.velocityVL, base, "stage2");
         return Improbable.check(player,
-                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, combinedConfig.evidenceProfileMovingVelocity),
+                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, overrideProfile),
                 now,
                 "moving.velocity.stage2",
                 pData);

@@ -126,22 +126,31 @@ public class Reach extends Check {
         data.reachEvidenceTime = now;
 
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
+        final String overrideProfile = combinedConfig == null
+                ? EvidenceFusionProfile.PROFILE_INHERIT
+                : combinedConfig.evidenceProfileBlockplaceReach;
         final float base = (float) Math.max(0.3, Math.min(6.0, violation * 1.8));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, combinedConfig.evidenceProfileBlockplaceReach);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, combinedConfig.evidenceProfileBlockplaceReach);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, overrideProfile);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, overrideProfile);
         if (data.reachVL < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, combinedConfig.evidenceProfileBlockplaceReach), now, pData);
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "blockplace.reach", data.reachVL, base, "feed");
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
         if (data.reachVL >= stage3Threshold) {
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "blockplace.reach", data.reachVL, base, "stage3");
             return Improbable.check(player,
-                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, combinedConfig.evidenceProfileBlockplaceReach),
+                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, overrideProfile),
                     now,
                     "blockplace.reach.stage3",
                     pData);
         }
+        EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                "blockplace.reach", data.reachVL, base, "stage2");
         return Improbable.check(player,
-                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, combinedConfig.evidenceProfileBlockplaceReach),
+                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, overrideProfile),
                 now,
                 "blockplace.reach.stage2",
                 pData);

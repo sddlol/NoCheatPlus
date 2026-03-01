@@ -84,23 +84,32 @@ public class Timer extends Check {
         }
         final long now = System.currentTimeMillis();
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
+        final String overrideProfile = combinedConfig == null
+                ? EvidenceFusionProfile.PROFILE_INHERIT
+                : combinedConfig.evidenceProfileMovingTimer;
         final float base = (float) Math.max(0.4, Math.min(7.0, 0.7 + severity * 5.0));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, combinedConfig.evidenceProfileMovingTimer);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, combinedConfig.evidenceProfileMovingTimer);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, overrideProfile);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, overrideProfile);
 
         if (data.timerVL < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.5f, combinedConfig, combinedConfig.evidenceProfileMovingTimer), now, pData);
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "moving.timer", data.timerVL, base, "feed");
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.5f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
         if (data.timerVL >= stage3Threshold) {
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "moving.timer", data.timerVL, base, "stage3");
             return Improbable.check(player,
-                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, combinedConfig.evidenceProfileMovingTimer),
+                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, overrideProfile),
                     now,
                     "moving.timer.stage3",
                     pData);
         }
+        EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                "moving.timer", data.timerVL, base, "stage2");
         return Improbable.check(player,
-                EvidenceFusionProfile.stage2Weight(base * 0.80f, combinedConfig, combinedConfig.evidenceProfileMovingTimer),
+                EvidenceFusionProfile.stage2Weight(base * 0.80f, combinedConfig, overrideProfile),
                 now,
                 "moving.timer.stage2",
                 pData);

@@ -357,30 +357,39 @@ public class Reach extends Check {
         data.reachEvidenceTime = now;
 
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
+        final String overrideProfile = combinedConfig == null
+                ? EvidenceFusionProfile.PROFILE_INHERIT
+                : combinedConfig.evidenceProfileFightReach;
         final float base = (float) Math.max(0.25,
                 Math.min(8.0, rawEvidence / Math.max(0.05f, cc.reachImprobableWeight)));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, combinedConfig.evidenceProfileFightReach);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, combinedConfig.evidenceProfileFightReach);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, overrideProfile);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, overrideProfile);
 
         if (data.reachVL < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.65f, combinedConfig, combinedConfig.evidenceProfileFightReach), now, pData);
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "fight.reach", data.reachVL, base, "feed");
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.65f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
         if (cc.reachImprobableFeedOnly || !canEscalateCancel) {
             final boolean stage3 = data.reachVL >= stage3Threshold;
+            EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                    "fight.reach", data.reachVL, base, stage3 ? "stage3-feed-only" : "stage2-feed-only");
             Improbable.feed(player,
                     stage3
-                            ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig, combinedConfig.evidenceProfileFightReach)
-                            : EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, combinedConfig.evidenceProfileFightReach),
+                            ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig, overrideProfile)
+                            : EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, overrideProfile),
                     now,
                     pData);
             return false;
         }
         final boolean stage3 = data.reachVL >= stage3Threshold;
+        EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
+                "fight.reach", data.reachVL, base, stage3 ? "stage3" : "stage2");
         return Improbable.check(player,
                 stage3
-                        ? EvidenceFusionProfile.stage3Weight(base * 1.30f, combinedConfig, combinedConfig.evidenceProfileFightReach)
-                        : EvidenceFusionProfile.stage2Weight(base * 0.95f, combinedConfig, combinedConfig.evidenceProfileFightReach),
+                        ? EvidenceFusionProfile.stage3Weight(base * 1.30f, combinedConfig, overrideProfile)
+                        : EvidenceFusionProfile.stage2Weight(base * 0.95f, combinedConfig, overrideProfile),
                 now,
                 tagBase + (stage3 ? ".stage3" : ".stage2"),
                 pData);
