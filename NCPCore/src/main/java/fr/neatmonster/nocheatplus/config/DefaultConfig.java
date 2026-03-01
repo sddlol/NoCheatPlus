@@ -318,6 +318,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_WRONGTURN, "inherit", 154);
         set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_KEEPALIVEFREQUENCY, "inherit", 154);
         set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_PACKETFREQUENCY, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_DEBUG_ACTIVE, true, 154);
+        set(ConfPaths.COMBINED_EVIDENCE_DEBUG_MININTERVALMS, 1000, 154);
         // Invulnerable
         set(ConfPaths.COMBINED_INVULNERABLE_CHECK, true, 154); // Not a check type yet.
         set(ConfPaths.COMBINED_INVULNERABLE_TRIGGERS_ALWAYS, false, 154);

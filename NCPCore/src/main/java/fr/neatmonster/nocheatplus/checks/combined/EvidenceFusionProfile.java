@@ -6,6 +6,9 @@
  */
 package fr.neatmonster.nocheatplus.checks.combined;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
@@ -28,6 +31,10 @@ public final class EvidenceFusionProfile {
     public static final String PROFILE_INHERIT = "inherit";
     public static final String PROFILE_BALANCED = "balanced";
     public static final String PROFILE_STRICT = "strict";
+
+    private static final long DEFAULT_DEBUG_MIN_INTERVAL_MS = 1000L;
+    private static final int DEBUG_RATE_LIMIT_MAX_ENTRIES = 20000;
+    private static final Map<String, Long> debugRateLimitMap = new ConcurrentHashMap<String, Long>();
 
     private EvidenceFusionProfile() {}
 
@@ -77,6 +84,15 @@ public final class EvidenceFusionProfile {
         if (pData == null || !pData.isDebugActive(checkType)) {
             return;
         }
+        if (cc != null && !cc.evidenceDebugActive) {
+            return;
+        }
+        final long minInterval = cc == null ? DEFAULT_DEBUG_MIN_INTERVAL_MS
+                : Math.max(0L, cc.evidenceDebugMinIntervalMs);
+        if (player != null && minInterval > 0L && shouldSkipDebug(player, source, minInterval)) {
+            return;
+        }
+
         final String effective = effectiveProfile(cc, overrideProfile);
         CheckUtils.debug(player, checkType,
                 "[EvidenceProfile] source=" + source
@@ -84,7 +100,22 @@ public final class EvidenceFusionProfile {
                         + " override=" + normalizeOverride(overrideProfile)
                         + " stage=" + stage
                         + " vl=" + String.format("%.3f", vl)
-                        + " base=" + String.format("%.3f", base));
+                        + " base=" + String.format("%.3f", base)
+                        + " minIntMs=" + minInterval);
+    }
+
+    private static boolean shouldSkipDebug(final Player player, final String source, final long minInterval) {
+        final long now = System.currentTimeMillis();
+        if (debugRateLimitMap.size() > DEBUG_RATE_LIMIT_MAX_ENTRIES) {
+            debugRateLimitMap.clear();
+        }
+        final String key = player.getUniqueId().toString() + ':' + source;
+        final Long last = debugRateLimitMap.get(key);
+        if (last != null && now - last.longValue() < minInterval) {
+            return true;
+        }
+        debugRateLimitMap.put(key, now);
+        return false;
     }
 
     public static boolean isStrict(final CombinedConfig cc) {
