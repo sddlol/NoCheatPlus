@@ -387,7 +387,8 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     @EventHandler(priority = EventPriority.LOWEST)
     public final void onPlayerInteractEntity(final PlayerInteractEntityEvent event) {
         final Player player = event.getPlayer();
-        if (player.getGameMode() == GameMode.CREATIVE || !DataManager.getPlayerData(player).isCheckActive(CheckType.INVENTORY, player)) {
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        if (player.getGameMode() == GameMode.CREATIVE || !pData.isCheckActive(CheckType.INVENTORY, player)) {
             return;
         }
         if (player.isDead() && BridgeHealth.getHealth(player) <= 0.0) {
@@ -398,6 +399,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         }
         else if (MovingUtil.hasScheduledPlayerSetBack(player)) {
             event.setCancelled(true);
+            MovingUtil.applyAggressiveSetBack(player, pData, "[InventoryInteractCancel] ");
             return;
         }
     }
@@ -415,6 +417,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
             if (MovingUtil.hasScheduledPlayerSetBack(player)) {
                 // Don't allow players to open inventories on set-backs.
                 event.setCancelled(true);
+                MovingUtil.applyAggressiveSetBack(player, pData, "[InventoryOpenCancel] ");
                 data.inventoryOpenTime = 0; // Just to be sure
                 if (pData.isDebugActive(CheckType.INVENTORY_OPEN)) {
                     debug(player, "InventoryOpenEvent: attempted to open a container during set back processing; reset timing data and prevent opening.");

@@ -54,6 +54,7 @@ import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
 import fr.neatmonster.nocheatplus.utilities.ds.count.ActionFrequency;
 import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
+import fr.neatmonster.nocheatplus.utilities.moving.MovingUtil;
 
 /**
  * Run checks related to moving (pos/look/flying). Skip packets that shouldn't
@@ -229,6 +230,7 @@ public class MovingFlying extends BaseAdapter {
             // Prevent processing packets with obviously malicious content.
             if (isInvalidContent(packetData)) {
                 event.setCancelled(true);
+                MovingUtil.applyAggressiveSetBack(player, pData, "[NetInvalidFlying] ");
                 // Do request and improbable update here for good measure.
                 TickTask.requestImprobableUpdate(player.getUniqueId(), 1.0f);
                 if (pData.isDebugActive(this.checkType)) {
@@ -310,6 +312,7 @@ public class MovingFlying extends BaseAdapter {
              */
             data.requestSetBack(player, this, plugin, CheckType.NET);
             event.setCancelled(true);
+            MovingUtil.applyAggressiveSetBack(player, pData, "[NetFlyingCancel] ");
         }
         
         if (pData.isDebugActive(this.checkType)) {

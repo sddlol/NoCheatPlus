@@ -36,6 +36,7 @@ import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
+import fr.neatmonster.nocheatplus.utilities.moving.MovingUtil;
 
 /**
  * Adapter for the UseEntity NMS packet
@@ -209,6 +210,7 @@ public class UseEntityAdapter extends BaseAdapter {
 
         if (cancel) {
             event.setCancelled(true);
+            MovingUtil.applyAggressiveSetBack(player, pData, "[NetUseEntityCancel] ");
         }
     }
 

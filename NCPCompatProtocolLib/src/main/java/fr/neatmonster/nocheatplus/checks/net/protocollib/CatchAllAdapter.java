@@ -31,6 +31,7 @@ import fr.neatmonster.nocheatplus.checks.net.PacketFrequency;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.utilities.moving.MovingUtil;
 
 /**
  * Pre-1.9.
@@ -87,6 +88,7 @@ public class CatchAllAdapter extends BaseAdapter {
             final NetData data = pData.getGenericInstance(NetData.class);
             if (packetFrequency.check(player, data, cc)) {
                 event.setCancelled(true);
+                MovingUtil.applyAggressiveSetBack(player, pData, "[NetPacketFreqCancel] ");
             }
         }
     }
