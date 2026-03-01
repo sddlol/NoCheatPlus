@@ -8,6 +8,26 @@ Updated-NoCheatPlus is a continuation of the famous anti-cheat plugin NoCheatPlu
 
 NoCheatPlus attempts to enforce "vanilla Minecraft" mechanics, as well as preventing players from abusing weaknesses in Minecraft or its protocol, making your server more safe. Organized in different sections, various checks are performed to test players doing, covering a wide range including flying and speeding, fighting hacks, fast block breaking and nukers, inventory hacks, chat spam and other types of malicious behaviour.
 
+Fork Notice (GPLv3 attribution and compliance)
+---------
+This repository may contain custom modifications made by the maintainer of this fork.
+
+To fully respect the original project and GPLv3 obligations:
+- We **keep GPLv3** for all derived work.
+- We **preserve upstream attribution** to original and continuation maintainers.
+- We **publish source code for modifications** in this repository (same license family, no closed-source redistribution of derivative code).
+- We **do not claim ownership of the upstream project**; this is a community fork.
+
+Upstream project and authors to credit:
+- Original NoCheat by [Evenprime](https://github.com/Evenprime)
+- NoCheatPlus by [NeatMonster](https://github.com/NeatMonster) and [Asofold](https://github.com/asofold)
+- Continuation by [Updated-NoCheatPlus](https://github.com/Updated-NoCheatPlus/NoCheatPlus)
+
+If you redistribute builds from this fork, please also include:
+- LICENSE.txt (GPLv3)
+- Source code link to this fork
+- A clear note that your build is forked/modified
+
 Installation
 ---------
 * [Install a Spigot server](https://github.com/Updated-NoCheatPlus/NoCheatPlus/#obtain-a-build-of-spigot)
