@@ -374,31 +374,31 @@ public class Scaffold extends Check {
 
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float base = (float) Math.max(0.25, Math.min(8.0, weight * cc.scaffoldImprobableWeight));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, combinedConfig.evidenceProfileBlockplaceScaffold);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, combinedConfig.evidenceProfileBlockplaceScaffold);
         if (data.scaffoldVL < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig), now, pData);
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, combinedConfig.evidenceProfileBlockplaceScaffold), now, pData);
             return false;
         }
         final boolean stage3 = data.scaffoldVL >= stage3Threshold;
         if (cc.scaffoldImprobableFeedOnly) {
             Improbable.feed(player,
                     stage3
-                            ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig)
-                            : EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig),
+                            ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig, combinedConfig.evidenceProfileBlockplaceScaffold)
+                            : EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, combinedConfig.evidenceProfileBlockplaceScaffold),
                     now,
                     pData);
             return false;
         }
         if (stage3) {
             return Improbable.check(player,
-                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig),
+                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, combinedConfig.evidenceProfileBlockplaceScaffold),
                     now,
                     "blockplace.scaffold.stage3",
                     pData);
         }
         return Improbable.check(player,
-                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig),
+                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, combinedConfig.evidenceProfileBlockplaceScaffold),
                 now,
                 "blockplace.scaffold.stage2",
                 pData);

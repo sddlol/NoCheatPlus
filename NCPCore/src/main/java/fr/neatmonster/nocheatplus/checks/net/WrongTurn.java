@@ -74,21 +74,21 @@ public class WrongTurn extends Check {
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float pitchExcess = (float) Math.max(0.0, Math.max(pitch - 90.0f, -90.0f - pitch));
         final float base = Math.max(0.5f, Math.min(12.0f, 0.8f + pitchExcess * 0.12f));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, combinedConfig.evidenceProfileNetWrongTurn);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, combinedConfig.evidenceProfileNetWrongTurn);
         if (data.wrongTurnVL < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig), now, pData);
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, combinedConfig.evidenceProfileNetWrongTurn), now, pData);
             return false;
         }
         if (data.wrongTurnVL >= stage3Threshold) {
             return Improbable.check(player,
-                    EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig),
+                    EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig, combinedConfig.evidenceProfileNetWrongTurn),
                     now,
                     "net.wrongturn.stage3",
                     pData);
         }
         return Improbable.check(player,
-                EvidenceFusionProfile.stage2Weight(base * 0.90f, combinedConfig),
+                EvidenceFusionProfile.stage2Weight(base * 0.90f, combinedConfig, combinedConfig.evidenceProfileNetWrongTurn),
                 now,
                 "net.wrongturn.stage2",
                 pData);

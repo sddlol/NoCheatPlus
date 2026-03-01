@@ -87,21 +87,21 @@ public class PacketFrequency extends Check {
 
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float base = (float) Math.max(0.35, Math.min(15.0, 0.8 + violation * 0.12));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_EXCESS, combinedConfig);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_EXCESS, combinedConfig);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_EXCESS, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_EXCESS, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency);
         if (violation < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.50f, combinedConfig), now, pData);
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.50f, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency), now, pData);
             return false;
         }
         if (violation >= stage3Threshold) {
             return Improbable.check(player,
-                    EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig),
+                    EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency),
                     now,
                     "net.packetfrequency.stage3",
                     pData);
         }
         return Improbable.check(player,
-                EvidenceFusionProfile.stage2Weight(base * 0.90f, combinedConfig),
+                EvidenceFusionProfile.stage2Weight(base * 0.90f, combinedConfig, combinedConfig.evidenceProfileNetPacketFrequency),
                 now,
                 "net.packetfrequency.stage2",
                 pData);

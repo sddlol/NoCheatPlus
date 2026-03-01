@@ -308,6 +308,16 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_IMPROBABLE_LEVEL, 400, 154);
         set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>50 log:improbable:8:9:if cancel vl>1500 cancel log:improbable:0:10:if cmdc:kickimprobable:0:5", 154);
         set(ConfPaths.COMBINED_EVIDENCE_PROFILE, "balanced", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_MOVING_TIMER, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_MOVING_VELOCITY, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_FIGHT_REACH, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_BLOCKPLACE_REACH, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_BLOCKPLACE_SCAFFOLD, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_ATTACKFREQUENCY, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_FLYINGFREQUENCY, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_WRONGTURN, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_KEEPALIVEFREQUENCY, "inherit", 154);
+        set(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_PACKETFREQUENCY, "inherit", 154);
         // Invulnerable
         set(ConfPaths.COMBINED_INVULNERABLE_CHECK, true, 154); // Not a check type yet.
         set(ConfPaths.COMBINED_INVULNERABLE_TRIGGERS_ALWAYS, false, 154);

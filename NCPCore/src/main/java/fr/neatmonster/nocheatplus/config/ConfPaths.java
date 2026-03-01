@@ -446,6 +446,17 @@ public abstract class ConfPaths {
     public static final String  COMBINED_IMPROBABLE_ACTIONS              = COMBINED_IMPROBABLE + "actions";
     private static final String COMBINED_EVIDENCE                        = COMBINED + "evidence.";
     public static final String  COMBINED_EVIDENCE_PROFILE                = COMBINED_EVIDENCE + "profile";
+    private static final String COMBINED_EVIDENCE_OVERRIDES              = COMBINED_EVIDENCE + "overrides.";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_MOVING_TIMER = COMBINED_EVIDENCE_OVERRIDES + "moving-timer";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_MOVING_VELOCITY = COMBINED_EVIDENCE_OVERRIDES + "moving-velocity";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_FIGHT_REACH  = COMBINED_EVIDENCE_OVERRIDES + "fight-reach";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_BLOCKPLACE_REACH = COMBINED_EVIDENCE_OVERRIDES + "blockplace-reach";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_BLOCKPLACE_SCAFFOLD = COMBINED_EVIDENCE_OVERRIDES + "blockplace-scaffold";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_NET_ATTACKFREQUENCY = COMBINED_EVIDENCE_OVERRIDES + "net-attackfrequency";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_NET_FLYINGFREQUENCY = COMBINED_EVIDENCE_OVERRIDES + "net-flyingfrequency";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_NET_WRONGTURN = COMBINED_EVIDENCE_OVERRIDES + "net-wrongturn";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_NET_KEEPALIVEFREQUENCY = COMBINED_EVIDENCE_OVERRIDES + "net-keepalivefrequency";
+    public static final String  COMBINED_EVIDENCE_OVERRIDES_NET_PACKETFREQUENCY = COMBINED_EVIDENCE_OVERRIDES + "net-packetfrequency";
 
     private static final String COMBINED_INVULNERABLE                       = COMBINED + "invulnerable.";
     public static final String  COMBINED_INVULNERABLE_CHECK                 = COMBINED_INVULNERABLE + SUB_ACTIVE;

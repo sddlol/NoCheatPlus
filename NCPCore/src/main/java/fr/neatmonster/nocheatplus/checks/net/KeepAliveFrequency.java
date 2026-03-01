@@ -76,21 +76,21 @@ public class KeepAliveFrequency extends Check {
 
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float base = (float) Math.max(0.25, Math.min(8.0, 0.7 + violation * 0.9));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_EXCESS, combinedConfig);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_EXCESS, combinedConfig);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_EXCESS, combinedConfig, combinedConfig.evidenceProfileNetKeepAliveFrequency);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_EXCESS, combinedConfig, combinedConfig.evidenceProfileNetKeepAliveFrequency);
         if (violation < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.50f, combinedConfig), now, pData);
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.50f, combinedConfig, combinedConfig.evidenceProfileNetKeepAliveFrequency), now, pData);
             return false;
         }
         if (violation >= stage3Threshold) {
             return Improbable.check(player,
-                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig),
+                    EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, combinedConfig.evidenceProfileNetKeepAliveFrequency),
                     now,
                     "net.keepalivefrequency.stage3",
                     pData);
         }
         return Improbable.check(player,
-                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig),
+                EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, combinedConfig.evidenceProfileNetKeepAliveFrequency),
                 now,
                 "net.keepalivefrequency.stage2",
                 pData);

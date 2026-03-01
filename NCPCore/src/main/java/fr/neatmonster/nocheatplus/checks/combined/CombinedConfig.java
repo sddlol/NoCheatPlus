@@ -42,8 +42,19 @@ public class CombinedConfig extends ACheckConfig {
     /** Do mind that this flag is not used by all components. */
     public final float          improbableLevel;
     public final ActionList     improbableActions;
-    /** Evidence fusion profile: balanced (default) or strict. */
+    /** Global evidence fusion profile: balanced (default) or strict. */
     public final String         evidenceProfile;
+    /** Per-check evidence profile overrides: inherit|balanced|strict. */
+    public final String         evidenceProfileMovingTimer;
+    public final String         evidenceProfileMovingVelocity;
+    public final String         evidenceProfileFightReach;
+    public final String         evidenceProfileBlockplaceReach;
+    public final String         evidenceProfileBlockplaceScaffold;
+    public final String         evidenceProfileNetAttackFrequency;
+    public final String         evidenceProfileNetFlyingFrequency;
+    public final String         evidenceProfileNetWrongTurn;
+    public final String         evidenceProfileNetKeepAliveFrequency;
+    public final String         evidenceProfileNetPacketFrequency;
 
     // Invulnerable management.
     public final boolean                    invulnerableCheck;
@@ -72,6 +83,16 @@ public class CombinedConfig extends ACheckConfig {
         improbableLevel = (float) config.getDouble(ConfPaths.COMBINED_IMPROBABLE_LEVEL);
         improbableActions = config.getOptimizedActionList(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, Permissions.COMBINED_IMPROBABLE);
         evidenceProfile = EvidenceFusionProfile.normalizeProfile(config.getString(ConfPaths.COMBINED_EVIDENCE_PROFILE, EvidenceFusionProfile.PROFILE_BALANCED));
+        evidenceProfileMovingTimer = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_MOVING_TIMER, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceProfileMovingVelocity = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_MOVING_VELOCITY, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceProfileFightReach = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_FIGHT_REACH, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceProfileBlockplaceReach = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_BLOCKPLACE_REACH, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceProfileBlockplaceScaffold = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_BLOCKPLACE_SCAFFOLD, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceProfileNetAttackFrequency = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_ATTACKFREQUENCY, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceProfileNetFlyingFrequency = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_FLYINGFREQUENCY, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceProfileNetWrongTurn = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_WRONGTURN, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceProfileNetKeepAliveFrequency = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_KEEPALIVEFREQUENCY, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceProfileNetPacketFrequency = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_PACKETFREQUENCY, EvidenceFusionProfile.PROFILE_INHERIT));
 
         invulnerableCheck = config.getBoolean(ConfPaths.COMBINED_INVULNERABLE_CHECK);
         invulnerableInitialTicksJoin = config.getInt(ConfPaths.COMBINED_INVULNERABLE_INITIALTICKS_JOIN);

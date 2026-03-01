@@ -359,19 +359,19 @@ public class Reach extends Check {
         final CombinedConfig combinedConfig = pData.getGenericInstance(CombinedConfig.class);
         final float base = (float) Math.max(0.25,
                 Math.min(8.0, rawEvidence / Math.max(0.05f, cc.reachImprobableWeight)));
-        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig);
-        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig);
+        final double stage2Threshold = EvidenceFusionProfile.stage2Threshold(EVIDENCE_STAGE2_VL, combinedConfig, combinedConfig.evidenceProfileFightReach);
+        final double stage3Threshold = EvidenceFusionProfile.stage3Threshold(EVIDENCE_STAGE3_VL, combinedConfig, combinedConfig.evidenceProfileFightReach);
 
         if (data.reachVL < stage2Threshold) {
-            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.65f, combinedConfig), now, pData);
+            Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.65f, combinedConfig, combinedConfig.evidenceProfileFightReach), now, pData);
             return false;
         }
         if (cc.reachImprobableFeedOnly || !canEscalateCancel) {
             final boolean stage3 = data.reachVL >= stage3Threshold;
             Improbable.feed(player,
                     stage3
-                            ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig)
-                            : EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig),
+                            ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig, combinedConfig.evidenceProfileFightReach)
+                            : EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, combinedConfig.evidenceProfileFightReach),
                     now,
                     pData);
             return false;
@@ -379,8 +379,8 @@ public class Reach extends Check {
         final boolean stage3 = data.reachVL >= stage3Threshold;
         return Improbable.check(player,
                 stage3
-                        ? EvidenceFusionProfile.stage3Weight(base * 1.30f, combinedConfig)
-                        : EvidenceFusionProfile.stage2Weight(base * 0.95f, combinedConfig),
+                        ? EvidenceFusionProfile.stage3Weight(base * 1.30f, combinedConfig, combinedConfig.evidenceProfileFightReach)
+                        : EvidenceFusionProfile.stage2Weight(base * 0.95f, combinedConfig, combinedConfig.evidenceProfileFightReach),
                 now,
                 tagBase + (stage3 ? ".stage3" : ".stage2"),
                 pData);
