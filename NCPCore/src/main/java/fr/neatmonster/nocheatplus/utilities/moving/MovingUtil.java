@@ -28,6 +28,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.checks.combined.CombinedData;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.model.MoveData;
@@ -62,6 +64,8 @@ public class MovingUtil {
      */
     private static final Location useLoc = new Location(null, 0, 0, 0);
     private static final Location useLoc2 = new Location(null, 0, 0, 0);
+    private static final long AGGRESSIVE_SETBACK_EVIDENCE_COOLDOWN_MS = 250L;
+    private static final float AGGRESSIVE_SETBACK_EVIDENCE_WEIGHT = 6.0f;
     //    /** Fast scan flags for 'mostly air'. */
     //    private static final long FLAGS_SCAN_FOR_GROUND_OR_RESETCOND = 
     //            BlockFlags.F_SOLID | BlockFlags.F_GROUND
@@ -618,12 +622,30 @@ public class MovingUtil {
         final Location ref = player.getLocation();
         final Location setBack = data.getSetBack(ref);
         data.prepareSetBack(setBack);
-        final boolean success = processStoredSetBack(player,
-                debugMessagePrefix == null ? "[AggressiveSetBack] " : debugMessagePrefix,
-                pData);
+        final String prefix = debugMessagePrefix == null ? "[AggressiveSetBack] " : debugMessagePrefix;
+        final boolean success = processStoredSetBack(player, prefix, pData);
+        feedAggressiveSetBackEvidence(player, pData, prefix);
         setBack.setWorld(null);
         ref.setWorld(null);
         return success;
+    }
+
+    private static void feedAggressiveSetBackEvidence(final Player player, final IPlayerData pData, final String debugPrefix) {
+        final CombinedData cData = pData.getGenericInstance(CombinedData.class);
+        if (cData == null) {
+            return;
+        }
+        final long now = System.currentTimeMillis();
+        if (now - cData.lastAggressiveSetBackEvidenceTime < AGGRESSIVE_SETBACK_EVIDENCE_COOLDOWN_MS) {
+            return;
+        }
+        cData.lastAggressiveSetBackEvidenceTime = now;
+        if (Improbable.check(player, AGGRESSIVE_SETBACK_EVIDENCE_WEIGHT, now, "setback.aggressive", pData)
+                && pData.isDebugActive(CheckType.COMBINED_IMPROBABLE)) {
+            CheckUtils.debug(player, CheckType.COMBINED_IMPROBABLE,
+                    (debugPrefix == null ? "[AggressiveSetBack] " : debugPrefix)
+                            + "Improbable escalation from aggressive setback evidence.");
+        }
     }
 
     /**
