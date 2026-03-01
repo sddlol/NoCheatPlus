@@ -15,6 +15,7 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
@@ -26,6 +27,9 @@ import fr.neatmonster.nocheatplus.utilities.StringUtil;
  * then use buffering + VL/actions.
  */
 public class AntiKnockback extends Check {
+
+    private static final double EVIDENCE_STAGE2_VL = 6.0;
+    private static final double EVIDENCE_STAGE3_VL = 20.0;
 
     private final List<String> tags = new ArrayList<String>();
 
@@ -83,6 +87,30 @@ public class AntiKnockback extends Check {
                             + " ping=" + pingMs
                             + " jitter=" + StringUtil.fdec3.format(jitterMs));
         }
-        return executeActions(vd).willCancel();
+        final boolean cancel = executeActions(vd).willCancel();
+        final boolean evidenceCancel = applyEvidenceFusion(player, severity, badH, badV, data, pData);
+        return cancel || evidenceCancel;
+    }
+
+    private boolean applyEvidenceFusion(final Player player,
+                                        final double severity,
+                                        final boolean badH,
+                                        final boolean badV,
+                                        final MovingData data,
+                                        final IPlayerData pData) {
+        if (!pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
+            return false;
+        }
+        final long now = System.currentTimeMillis();
+        final double base = Math.max(0.5, Math.min(8.0, 0.8 + severity * 6.0 + (badH && badV ? 0.6 : 0.0)));
+
+        if (data.velocityVL < EVIDENCE_STAGE2_VL) {
+            Improbable.feed(player, (float) (base * 0.55), now, pData);
+            return false;
+        }
+        if (data.velocityVL >= EVIDENCE_STAGE3_VL) {
+            return Improbable.check(player, (float) (base * 1.25), now, "moving.velocity.stage3", pData);
+        }
+        return Improbable.check(player, (float) (base * 0.85), now, "moving.velocity.stage2", pData);
     }
 }
