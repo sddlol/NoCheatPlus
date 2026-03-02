@@ -68,6 +68,7 @@ import fr.neatmonster.nocheatplus.checks.net.NetConfig;
 import fr.neatmonster.nocheatplus.checks.net.NetStatic;
 import fr.neatmonster.nocheatplus.checks.workaround.WRPT;
 import fr.neatmonster.nocheatplus.command.NoCheatPlusCommand;
+import fr.neatmonster.nocheatplus.command.admin.LangUtil;
 import fr.neatmonster.nocheatplus.command.admin.VersionCommand;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 import fr.neatmonster.nocheatplus.compat.SchedulerHelper;
@@ -1112,14 +1113,20 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
             return;
         }
         logManager.warning(Streams.INIT,
-                "NCP setup 未完成: 请在服务器启动后运行 /ncp setup <survival|pvp|minigame|anarchy> 选择默认配置模板。");
+                LangUtil.tr(
+                        "NCP setup is not completed: run /ncp setup <survival|pvp|minigame|anarchy> after startup to choose a server profile.",
+                        "NCP setup 未完成: 请在服务器启动后运行 /ncp setup <survival|pvp|minigame|anarchy> 选择默认配置模板。"));
         logManager.warning(Streams.INIT,
-                "在你选择前将继续使用当前配置（默认是安全保守值，不会自动替你选模板）。");
+                LangUtil.tr(
+                        "Until you choose, NCP will continue using current defaults (safe conservative mode, no auto profile selection).",
+                        "在你选择前将继续使用当前配置（默认是安全保守值，不会自动替你选模板）。"));
 
         for (final Player player : onlinePlayers) {
             if (player.isOp() || DataManager.getPlayerData(player).hasPermission(Permissions.COMMAND_SETUP, player)) {
                 sendMessageOnTick(player.getName(), ChatColor.YELLOW
-                        + "NCP setup 未完成: 使用 /ncp setup <survival|pvp|minigame|anarchy> 选择服务器类型。");
+                        + LangUtil.tr(
+                        "NCP setup is not completed: run /ncp setup <survival|pvp|minigame|anarchy> to choose a profile.",
+                        "NCP setup 未完成: 使用 /ncp setup <survival|pvp|minigame|anarchy> 选择服务器类型。"));
             }
         }
     }
@@ -1344,7 +1351,10 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
         }
         if (!ConfigManager.getConfigFile().getBoolean(ConfPaths.SETUP_COMPLETED, false)
                 && (player.isOp() || data.hasPermission(Permissions.COMMAND_SETUP, player))) {
-            sendMessageOnTick(playerName, ChatColor.YELLOW + "NCP setup 未完成: 使用 /ncp setup <survival|pvp|minigame|anarchy> 选择服务器类型。");
+            sendMessageOnTick(playerName, ChatColor.YELLOW
+                    + LangUtil.tr(
+                    "NCP setup is not completed: run /ncp setup <survival|pvp|minigame|anarchy> to choose a profile.",
+                    "NCP setup 未完成: 使用 /ncp setup <survival|pvp|minigame|anarchy> 选择服务器类型。"));
         }
         // JoinLeaveListenerS: Do update comment in NoCheatPlusAPI with changing event priority.
         for (final JoinLeaveListener jlListener : joinLeaveListeners) {

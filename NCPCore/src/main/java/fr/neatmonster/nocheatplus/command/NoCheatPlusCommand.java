@@ -36,6 +36,7 @@ import fr.neatmonster.nocheatplus.command.admin.CommandsCommand;
 import fr.neatmonster.nocheatplus.command.admin.InfoCommand;
 import fr.neatmonster.nocheatplus.command.admin.InspectCommand;
 import fr.neatmonster.nocheatplus.command.admin.LagCommand;
+import fr.neatmonster.nocheatplus.command.admin.LangCommand;
 import fr.neatmonster.nocheatplus.command.admin.ReloadCommand;
 import fr.neatmonster.nocheatplus.command.admin.RemovePlayerCommand;
 import fr.neatmonster.nocheatplus.command.admin.SetupCommand;
@@ -111,6 +112,7 @@ public class NoCheatPlusCommand extends BaseCommand {
                 new KickCommand(plugin),
                 new DenyListCommand(plugin),
                 new LagCommand(plugin),
+                new LangCommand(plugin),
                 new VersionCommand(plugin),
                 new NotifyCommand(plugin),
                 new ReloadCommand(plugin, notifyReload),
@@ -161,7 +163,11 @@ public class NoCheatPlusCommand extends BaseCommand {
             // Check sub-commands.
             if (args.length > 0){
                 AbstractCommand<?> subCommand = subCommands.get(args[0].trim().toLowerCase());
-                if (subCommand != null && subCommand.testPermission(sender, command, commandLabel, args)){
+                if (subCommand != null){
+                    if (!subCommand.testPermission(sender, command, commandLabel, args)) {
+                        sender.sendMessage((sender instanceof org.bukkit.entity.Player ? TAG : CTAG) + "You don't have permission.");
+                        return true;
+                    }
                     // Sender has permission to run the command.
                     final boolean res = subCommand.onCommand(sender, command, commandLabel, args);
                     if (!res && subCommand.usage != null) {

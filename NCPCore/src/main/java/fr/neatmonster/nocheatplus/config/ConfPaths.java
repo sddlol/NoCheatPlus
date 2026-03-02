@@ -83,6 +83,7 @@ public abstract class ConfPaths {
     public static final String SETUP                                     = "setup.";
     public static final String SETUP_COMPLETED                           = SETUP + "completed";
     public static final String SETUP_PROFILE                             = SETUP + "profile";
+    public static final String SETUP_LANGUAGE                            = SETUP + "language";
     
     @GlobalConfig
     private static final String LOGGING                                  = "logging.";

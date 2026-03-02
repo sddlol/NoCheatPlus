@@ -33,6 +33,8 @@ commands:
                §7§l•§c§o /<command> lag§7 - Lag-related info.
                §7§l•§c§o /<command> version§7 - Display information about both the server and the plugin.
                §7§l•§c§o /<command> commands§7 - List all commands, including auxiliary ones.
+               §7§l•§c§o /<command> setup <survival|pvp|minigame|anarchy|status|reset>§7 - First-start profile wizard.
+               §7§l•§c§o /<command> lang <en|zh-cn|status>§7 - Switch command output language.
                §7§l•§c§o /<command> stopwatch (start/stop/distance/return) [distance]§7 - Simple command for measuring time and distances. Useful for testing purposes.
 
 permissions:

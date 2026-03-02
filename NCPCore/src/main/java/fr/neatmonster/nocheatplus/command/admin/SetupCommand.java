@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.neatmonster.nocheatplus.command.BaseCommand;
@@ -41,13 +42,24 @@ public class SetupCommand extends BaseCommand {
     }
 
     @Override
+    public boolean testPermission(final CommandSender sender, final Command command, final String alias, final String[] args) {
+        if (sender instanceof ConsoleCommandSender) {
+            return true;
+        }
+        return super.testPermission(sender, command, alias, args);
+    }
+
+    @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         if (args.length == 1 || (args.length == 2 && "status".equalsIgnoreCase(args[1]))) {
             sendStatus(sender);
             return true;
         }
         if (args.length != 2) {
-            return false;
+            sender.sendMessage(TAG + ChatColor.YELLOW + LangUtil.tr(
+                    "Usage: /ncp setup <survival|pvp|minigame|anarchy|status|reset>",
+                    "用法: /ncp setup <survival|pvp|minigame|anarchy|status|reset>"));
+            return true;
         }
 
         final String choice = args[1].trim().toLowerCase(Locale.ROOT);
@@ -58,14 +70,17 @@ public class SetupCommand extends BaseCommand {
             if (!saveGlobalConfig(sender, config)) {
                 return true;
             }
-            sender.sendMessage(TAG + ChatColor.YELLOW + "Setup state reset. Run /ncp setup <profile> and then reload.");
+            sender.sendMessage(TAG + ChatColor.YELLOW + LangUtil.tr(
+                    "Setup state reset. Run /ncp setup <profile> and then reload.",
+                    "已重置向导状态。请运行 /ncp setup <profile> 然后重载。"));
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "ncp reload");
             return true;
         }
 
         if (!Arrays.asList(PROFILES).contains(choice)) {
-            sender.sendMessage(TAG + ChatColor.RED + "Unknown profile: " + choice);
-            sender.sendMessage(TAG + ChatColor.GRAY + "Available: " + ChatColor.WHITE + "survival, pvp, minigame, anarchy");
+            sender.sendMessage(TAG + ChatColor.RED + LangUtil.tr("Unknown profile: ", "未知模板: ") + choice);
+            sender.sendMessage(TAG + ChatColor.GRAY + LangUtil.tr("Available: ", "可选模板: ")
+                    + ChatColor.WHITE + "survival, pvp, minigame, anarchy");
             return true;
         }
 
@@ -78,7 +93,8 @@ public class SetupCommand extends BaseCommand {
             return true;
         }
 
-        sender.sendMessage(TAG + ChatColor.GREEN + "Applied setup profile: " + choice + ChatColor.GRAY + ". Reloading configuration...");
+        sender.sendMessage(TAG + ChatColor.GREEN + LangUtil.tr("Applied setup profile: ", "已应用模板: ")
+                + choice + ChatColor.GRAY + LangUtil.tr(". Reloading configuration...", "。正在重载配置..."));
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "ncp reload");
         return true;
     }
@@ -87,9 +103,11 @@ public class SetupCommand extends BaseCommand {
         final ConfigFile config = ConfigManager.getConfigFile();
         final boolean completed = config.getBoolean(ConfPaths.SETUP_COMPLETED, false);
         final String profile = config.getString(ConfPaths.SETUP_PROFILE, "unconfigured");
-        sender.sendMessage(TAG + ChatColor.GRAY + "Setup completed: " + (completed ? ChatColor.GREEN + "true" : ChatColor.RED + "false"));
-        sender.sendMessage(TAG + ChatColor.GRAY + "Selected profile: " + ChatColor.YELLOW + profile);
-        sender.sendMessage(TAG + ChatColor.GRAY + "Available profiles: " + ChatColor.WHITE + "survival, pvp, minigame, anarchy");
+        sender.sendMessage(TAG + ChatColor.GRAY + LangUtil.tr("Setup completed: ", "向导完成状态: ")
+                + (completed ? ChatColor.GREEN + "true" : ChatColor.RED + "false"));
+        sender.sendMessage(TAG + ChatColor.GRAY + LangUtil.tr("Selected profile: ", "当前模板: ") + ChatColor.YELLOW + profile);
+        sender.sendMessage(TAG + ChatColor.GRAY + LangUtil.tr("Available profiles: ", "可选模板: ")
+                + ChatColor.WHITE + "survival, pvp, minigame, anarchy");
     }
 
     private boolean saveGlobalConfig(final CommandSender sender, final ConfigFile config) {
@@ -98,7 +116,8 @@ public class SetupCommand extends BaseCommand {
             config.save(target);
             return true;
         } catch (final Exception ex) {
-            sender.sendMessage(TAG + ChatColor.RED + "Failed to save config.yml: " + ex.getClass().getSimpleName());
+            sender.sendMessage(TAG + ChatColor.RED + LangUtil.tr("Failed to save config.yml: ", "保存 config.yml 失败: ")
+                    + ex.getClass().getSimpleName());
             return false;
         }
     }
