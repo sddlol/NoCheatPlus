@@ -98,9 +98,17 @@ public class PacketFrequency extends Check {
             Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.50f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
-        if (violation >= stage3Threshold) {
+        final boolean stage3Candidate = violation >= stage3Threshold;
+        final boolean stage3 = stage3Candidate
+                && EvidenceFusionProfile.shouldEscalateStage3(combinedConfig, now, data.netPacketStage3CandidateTime);
+        if (stage3Candidate) {
+            data.netPacketStage3CandidateTime = now;
+        }
+        if (stage3) {
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
                     "net.packetfrequency", violation, base, "stage3");
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "net.packetfrequency", "stage3",
+                    violation, overrideProfile, null, null);
             return Improbable.check(player,
                     EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig, overrideProfile),
                     now,
@@ -108,7 +116,9 @@ public class PacketFrequency extends Check {
                     pData);
         }
         EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                "net.packetfrequency", violation, base, "stage2");
+                "net.packetfrequency", violation, base, stage3Candidate ? "stage2-repeat-pending" : "stage2");
+        EvidenceFusionProfile.snapshotStage(player, combinedConfig, "net.packetfrequency", "stage2",
+                violation, overrideProfile, null, null);
         return Improbable.check(player,
                 EvidenceFusionProfile.stage2Weight(base * 0.90f, combinedConfig, overrideProfile),
                 now,

@@ -92,6 +92,7 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
     // Data of the reach check.
     public double reachMod = 1.0;
     public long reachEvidenceTime = 0L;
+    public long reachStage3CandidateTime = 0L;
 
     // Data of the SelfHit check.
     public ActionFrequency selfHitVL = new ActionFrequency(6, 5000);
@@ -113,6 +114,7 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
                     reachVL = 0;
                     reachMod = 1.0;
                     reachEvidenceTime = 0L;
+                    reachStage3CandidateTime = 0L;
                     break;
                 case FIGHT_ANGLE:
                     angleVL = 0;

@@ -138,9 +138,17 @@ public class Reach extends Check {
             Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
-        if (data.reachVL >= stage3Threshold) {
+        final boolean stage3Candidate = data.reachVL >= stage3Threshold;
+        final boolean stage3 = stage3Candidate
+                && EvidenceFusionProfile.shouldEscalateStage3(combinedConfig, now, data.reachStage3CandidateTime);
+        if (stage3Candidate) {
+            data.reachStage3CandidateTime = now;
+        }
+        if (stage3) {
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
                     "blockplace.reach", data.reachVL, base, "stage3");
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "blockplace.reach", "stage3",
+                    data.reachVL, overrideProfile, null, null);
             return Improbable.check(player,
                     EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, overrideProfile),
                     now,
@@ -148,7 +156,9 @@ public class Reach extends Check {
                     pData);
         }
         EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                "blockplace.reach", data.reachVL, base, "stage2");
+                "blockplace.reach", data.reachVL, base, stage3Candidate ? "stage2-repeat-pending" : "stage2");
+        EvidenceFusionProfile.snapshotStage(player, combinedConfig, "blockplace.reach", "stage2",
+                data.reachVL, overrideProfile, null, null);
         return Improbable.check(player,
                 EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, overrideProfile),
                 now,

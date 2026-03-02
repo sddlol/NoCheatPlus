@@ -82,6 +82,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public double survivalFlyVL = 0.0;
     public double velocityVL = 0.0;
     public double timerVL = 0.0;
+    public long velocityStage3CandidateTime = 0L;
+    public long timerStage3CandidateTime = 0L;
     public double vehicleMorePacketsVL = 0.0;
     public double vehicleEnvelopeVL = 0.0;
     public double passableVL = 0.0;
@@ -1461,10 +1463,12 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
                     break;
                 case MOVING_VELOCITY:
                     velocityVL = 0;
+                    velocityStage3CandidateTime = 0L;
                     clearVelocityAntiKbData();
                     break;
                 case MOVING_TIMER:
                     timerVL = 0;
+                    timerStage3CandidateTime = 0L;
                     clearTimerData();
                     break;
                 case MOVING_VEHICLE:

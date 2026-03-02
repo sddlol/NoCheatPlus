@@ -55,9 +55,14 @@ public class CombinedConfig extends ACheckConfig {
     public final String         evidenceProfileNetWrongTurn;
     public final String         evidenceProfileNetKeepAliveFrequency;
     public final String         evidenceProfileNetPacketFrequency;
+    /** Evidence false-positive guardrails. */
+    public final boolean        evidenceGuardrailsEnabled;
+    public final long           evidenceGuardrailsMinRepeatWindowMs;
+    public final boolean        evidenceGuardrailsRequireRepeatForStage3;
     /** Evidence profile debug traces. */
     public final boolean        evidenceDebugActive;
     public final long           evidenceDebugMinIntervalMs;
+    public final boolean        evidenceDebugSnapshotActive;
 
     // Invulnerable management.
     public final boolean                    invulnerableCheck;
@@ -96,8 +101,12 @@ public class CombinedConfig extends ACheckConfig {
         evidenceProfileNetWrongTurn = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_WRONGTURN, EvidenceFusionProfile.PROFILE_INHERIT));
         evidenceProfileNetKeepAliveFrequency = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_KEEPALIVEFREQUENCY, EvidenceFusionProfile.PROFILE_INHERIT));
         evidenceProfileNetPacketFrequency = EvidenceFusionProfile.normalizeOverride(config.getString(ConfPaths.COMBINED_EVIDENCE_OVERRIDES_NET_PACKETFREQUENCY, EvidenceFusionProfile.PROFILE_INHERIT));
+        evidenceGuardrailsEnabled = config.getBoolean(ConfPaths.COMBINED_EVIDENCE_GUARDRAILS_ENABLED, true);
+        evidenceGuardrailsMinRepeatWindowMs = config.getLong(ConfPaths.COMBINED_EVIDENCE_GUARDRAILS_MIN_REPEAT_WINDOW_MS, 1L, 60_000L, 350L);
+        evidenceGuardrailsRequireRepeatForStage3 = config.getBoolean(ConfPaths.COMBINED_EVIDENCE_GUARDRAILS_REQUIRE_REPEAT_FOR_STAGE3, true);
         evidenceDebugActive = config.getBoolean(ConfPaths.COMBINED_EVIDENCE_DEBUG_ACTIVE);
         evidenceDebugMinIntervalMs = config.getLong(ConfPaths.COMBINED_EVIDENCE_DEBUG_MININTERVALMS, 0L, 60_000L, 1000L);
+        evidenceDebugSnapshotActive = config.getBoolean(ConfPaths.COMBINED_EVIDENCE_DEBUG_SNAPSHOT_ACTIVE, true);
 
         invulnerableCheck = config.getBoolean(ConfPaths.COMBINED_INVULNERABLE_CHECK);
         invulnerableInitialTicksJoin = config.getInt(ConfPaths.COMBINED_INVULNERABLE_INITIALTICKS_JOIN);

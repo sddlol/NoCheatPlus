@@ -90,7 +90,7 @@ public class AntiKnockback extends Check {
                             + " jitter=" + StringUtil.fdec3.format(jitterMs));
         }
         final boolean cancel = executeActions(vd).willCancel();
-        final boolean evidenceCancel = applyEvidenceFusion(player, severity, badH, badV, data, pData);
+        final boolean evidenceCancel = applyEvidenceFusion(player, severity, badH, badV, pingMs, jitterMs, data, pData);
         return cancel || evidenceCancel;
     }
 
@@ -98,6 +98,8 @@ public class AntiKnockback extends Check {
                                         final double severity,
                                         final boolean badH,
                                         final boolean badV,
+                                        final int pingMs,
+                                        final double jitterMs,
                                         final MovingData data,
                                         final IPlayerData pData) {
         if (!pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
@@ -118,9 +120,17 @@ public class AntiKnockback extends Check {
             Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
-        if (data.velocityVL >= stage3Threshold) {
+        final boolean stage3Candidate = data.velocityVL >= stage3Threshold;
+        final boolean stage3 = stage3Candidate
+                && EvidenceFusionProfile.shouldEscalateStage3(combinedConfig, now, data.velocityStage3CandidateTime);
+        if (stage3Candidate) {
+            data.velocityStage3CandidateTime = now;
+        }
+        if (stage3) {
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
                     "moving.velocity", data.velocityVL, base, "stage3");
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "moving.velocity", "stage3", data.velocityVL,
+                    overrideProfile, pingMs, Double.valueOf(jitterMs));
             return Improbable.check(player,
                     EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig, overrideProfile),
                     now,
@@ -128,7 +138,9 @@ public class AntiKnockback extends Check {
                     pData);
         }
         EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                "moving.velocity", data.velocityVL, base, "stage2");
+                "moving.velocity", data.velocityVL, base, stage3Candidate ? "stage2-repeat-pending" : "stage2");
+        EvidenceFusionProfile.snapshotStage(player, combinedConfig, "moving.velocity", "stage2", data.velocityVL,
+                overrideProfile, pingMs, Double.valueOf(jitterMs));
         return Improbable.check(player,
                 EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, overrideProfile),
                 now,

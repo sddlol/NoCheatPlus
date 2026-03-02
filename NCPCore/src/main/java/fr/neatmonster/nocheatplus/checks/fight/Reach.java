@@ -371,10 +371,17 @@ public class Reach extends Check {
             Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.65f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
+        final boolean stage3Candidate = data.reachVL >= stage3Threshold;
+        final boolean stage3 = stage3Candidate
+                && EvidenceFusionProfile.shouldEscalateStage3(combinedConfig, now, data.reachStage3CandidateTime);
+        if (stage3Candidate) {
+            data.reachStage3CandidateTime = now;
+        }
         if (cc.reachImprobableFeedOnly || !canEscalateCancel) {
-            final boolean stage3 = data.reachVL >= stage3Threshold;
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                    "fight.reach", data.reachVL, base, stage3 ? "stage3-feed-only" : "stage2-feed-only");
+                    "fight.reach", data.reachVL, base, stage3 ? "stage3-feed-only" : (stage3Candidate ? "stage2-repeat-pending-feed-only" : "stage2-feed-only"));
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "fight.reach", stage3 ? "stage3" : "stage2",
+                    data.reachVL, overrideProfile, null, null);
             Improbable.feed(player,
                     stage3
                             ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig, overrideProfile)
@@ -383,9 +390,10 @@ public class Reach extends Check {
                     pData);
             return false;
         }
-        final boolean stage3 = data.reachVL >= stage3Threshold;
         EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                "fight.reach", data.reachVL, base, stage3 ? "stage3" : "stage2");
+                "fight.reach", data.reachVL, base, stage3 ? "stage3" : (stage3Candidate ? "stage2-repeat-pending" : "stage2"));
+        EvidenceFusionProfile.snapshotStage(player, combinedConfig, "fight.reach", stage3 ? "stage3" : "stage2",
+                data.reachVL, overrideProfile, null, null);
         return Improbable.check(player,
                 stage3
                         ? EvidenceFusionProfile.stage3Weight(base * 1.30f, combinedConfig, overrideProfile)

@@ -77,6 +77,11 @@ public class NetData extends ACheckData {
     public long lastNetWrongTurnEvidenceTime = 0L;
     public long lastNetKeepAliveEvidenceTime = 0L;
     public long lastNetPacketEvidenceTime = 0L;
+    public long netAttackStage3CandidateTime = 0L;
+    public long netFlyingStage3CandidateTime = 0L;
+    public long netWrongTurnStage3CandidateTime = 0L;
+    public long netKeepAliveStage3CandidateTime = 0L;
+    public long netPacketStage3CandidateTime = 0L;
     
     // ToggleFrequency
     public double toggleFrequencyVL = 0;
@@ -123,11 +128,21 @@ public class NetData extends ACheckData {
     public void onJoin(final Player player) {
         teleportQueue.clear();
         clearFlyingQueue();
+        netAttackStage3CandidateTime = 0L;
+        netFlyingStage3CandidateTime = 0L;
+        netWrongTurnStage3CandidateTime = 0L;
+        netKeepAliveStage3CandidateTime = 0L;
+        netPacketStage3CandidateTime = 0L;
     }
 
     public void onLeave(Player player) {
         teleportQueue.clear();
         clearFlyingQueue();
+        netAttackStage3CandidateTime = 0L;
+        netFlyingStage3CandidateTime = 0L;
+        netWrongTurnStage3CandidateTime = 0L;
+        netKeepAliveStage3CandidateTime = 0L;
+        netPacketStage3CandidateTime = 0L;
     }
     
     /**

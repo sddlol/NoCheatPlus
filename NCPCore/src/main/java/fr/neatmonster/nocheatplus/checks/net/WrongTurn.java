@@ -85,9 +85,17 @@ public class WrongTurn extends Check {
             Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
-        if (data.wrongTurnVL >= stage3Threshold) {
+        final boolean stage3Candidate = data.wrongTurnVL >= stage3Threshold;
+        final boolean stage3 = stage3Candidate
+                && EvidenceFusionProfile.shouldEscalateStage3(combinedConfig, now, data.netWrongTurnStage3CandidateTime);
+        if (stage3Candidate) {
+            data.netWrongTurnStage3CandidateTime = now;
+        }
+        if (stage3) {
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
                     "net.wrongturn", data.wrongTurnVL, base, "stage3");
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "net.wrongturn", "stage3",
+                    data.wrongTurnVL, overrideProfile, null, null);
             return Improbable.check(player,
                     EvidenceFusionProfile.stage3Weight(base * 1.25f, combinedConfig, overrideProfile),
                     now,
@@ -95,7 +103,9 @@ public class WrongTurn extends Check {
                     pData);
         }
         EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                "net.wrongturn", data.wrongTurnVL, base, "stage2");
+                "net.wrongturn", data.wrongTurnVL, base, stage3Candidate ? "stage2-repeat-pending" : "stage2");
+        EvidenceFusionProfile.snapshotStage(player, combinedConfig, "net.wrongturn", "stage2",
+                data.wrongTurnVL, overrideProfile, null, null);
         return Improbable.check(player,
                 EvidenceFusionProfile.stage2Weight(base * 0.90f, combinedConfig, overrideProfile),
                 now,

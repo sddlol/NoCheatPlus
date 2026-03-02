@@ -385,10 +385,17 @@ public class Scaffold extends Check {
             Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
-        final boolean stage3 = data.scaffoldVL >= stage3Threshold;
+        final boolean stage3Candidate = data.scaffoldVL >= stage3Threshold;
+        final boolean stage3 = stage3Candidate
+                && EvidenceFusionProfile.shouldEscalateStage3(combinedConfig, now, data.scaffoldStage3CandidateTime);
+        if (stage3Candidate) {
+            data.scaffoldStage3CandidateTime = now;
+        }
         if (cc.scaffoldImprobableFeedOnly) {
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                    "blockplace.scaffold", data.scaffoldVL, base, stage3 ? "stage3-feed-only" : "stage2-feed-only");
+                    "blockplace.scaffold", data.scaffoldVL, base, stage3 ? "stage3-feed-only" : (stage3Candidate ? "stage2-repeat-pending-feed-only" : "stage2-feed-only"));
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "blockplace.scaffold", stage3 ? "stage3" : "stage2",
+                    data.scaffoldVL, overrideProfile, null, null);
             Improbable.feed(player,
                     stage3
                             ? EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig, overrideProfile)
@@ -400,6 +407,8 @@ public class Scaffold extends Check {
         if (stage3) {
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
                     "blockplace.scaffold", data.scaffoldVL, base, "stage3");
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "blockplace.scaffold", "stage3",
+                    data.scaffoldVL, overrideProfile, null, null);
             return Improbable.check(player,
                     EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, overrideProfile),
                     now,
@@ -407,7 +416,9 @@ public class Scaffold extends Check {
                     pData);
         }
         EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                "blockplace.scaffold", data.scaffoldVL, base, "stage2");
+                "blockplace.scaffold", data.scaffoldVL, base, stage3Candidate ? "stage2-repeat-pending" : "stage2");
+        EvidenceFusionProfile.snapshotStage(player, combinedConfig, "blockplace.scaffold", "stage2",
+                data.scaffoldVL, overrideProfile, null, null);
         return Improbable.check(player,
                 EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, overrideProfile),
                 now,

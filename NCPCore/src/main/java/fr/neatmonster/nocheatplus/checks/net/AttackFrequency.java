@@ -146,9 +146,17 @@ public class AttackFrequency extends Check {
             Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.55f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
-        if (maxVl >= stage3Threshold) {
+        final boolean stage3Candidate = maxVl >= stage3Threshold;
+        final boolean stage3 = stage3Candidate
+                && EvidenceFusionProfile.shouldEscalateStage3(combinedConfig, now, data.netAttackStage3CandidateTime);
+        if (stage3Candidate) {
+            data.netAttackStage3CandidateTime = now;
+        }
+        if (stage3) {
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
                     "net.attackfrequency", maxVl, base, "stage3:" + tags);
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "net.attackfrequency", "stage3",
+                    maxVl, overrideProfile, null, null);
             return Improbable.check(player,
                     EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, overrideProfile),
                     now,
@@ -156,7 +164,9 @@ public class AttackFrequency extends Check {
                     pData);
         }
         EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                "net.attackfrequency", maxVl, base, "stage2:" + tags);
+                "net.attackfrequency", maxVl, base, (stage3Candidate ? "stage2-repeat-pending:" : "stage2:") + tags);
+        EvidenceFusionProfile.snapshotStage(player, combinedConfig, "net.attackfrequency", "stage2",
+                maxVl, overrideProfile, null, null);
         return Improbable.check(player,
                 EvidenceFusionProfile.stage2Weight(base * 0.85f, combinedConfig, overrideProfile),
                 now,

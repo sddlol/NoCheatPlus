@@ -9,11 +9,14 @@ package fr.neatmonster.nocheatplus.checks.combined;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.CheckUtils;
+import fr.neatmonster.nocheatplus.utilities.StringUtil;
 
 /**
  * Centralized profile tuning for staged evidence fusion.
@@ -116,6 +119,46 @@ public final class EvidenceFusionProfile {
         }
         debugRateLimitMap.put(key, now);
         return false;
+    }
+
+    public static boolean shouldEscalateStage3(final CombinedConfig cc,
+                                               final long now,
+                                               final long lastStage3CandidateTime) {
+        if (cc == null || !cc.evidenceGuardrailsEnabled || !cc.evidenceGuardrailsRequireRepeatForStage3) {
+            return true;
+        }
+        if (lastStage3CandidateTime <= 0L) {
+            return false;
+        }
+        return now - lastStage3CandidateTime <= Math.max(1L, cc.evidenceGuardrailsMinRepeatWindowMs);
+    }
+
+    public static void snapshotStage(final Player player,
+                                     final CombinedConfig cc,
+                                     final String source,
+                                     final String stage,
+                                     final double vl,
+                                     final String overrideProfile,
+                                     final Integer pingMs,
+                                     final Double jitterMs) {
+        if (player == null || (cc != null && !cc.evidenceDebugSnapshotActive)) {
+            return;
+        }
+        final String effective = effectiveProfile(cc, overrideProfile);
+        final Location loc = player.getLocation();
+        final String xyz = loc == null ? "na" : (StringUtil.fdec3.format(loc.getX()) + ","
+                + StringUtil.fdec3.format(loc.getY()) + ","
+                + StringUtil.fdec3.format(loc.getZ()));
+        StaticLog.logInfo("[EvidenceSnapshot]"
+                + " player=" + player.getName()
+                + " source=" + source
+                + " stage=" + stage
+                + " vl=" + StringUtil.fdec3.format(vl)
+                + " effective=" + effective
+                + " override=" + normalizeOverride(overrideProfile)
+                + " ping=" + (pingMs == null ? "na" : Integer.toString(pingMs.intValue()))
+                + " jitter=" + (jitterMs == null ? "na" : StringUtil.fdec3.format(jitterMs.doubleValue()))
+                + " xyz=" + xyz);
     }
 
     public static boolean isStrict(final CombinedConfig cc) {

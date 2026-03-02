@@ -71,12 +71,14 @@ public class Timer extends Check {
             vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, ","));
         }
         final boolean cancel = executeActions(vd).willCancel();
-        final boolean evidenceCancel = applyEvidenceFusion(player, severity, data, pData);
+        final boolean evidenceCancel = applyEvidenceFusion(player, severity, pingMs, jitterMs, data, pData);
         return cancel || evidenceCancel;
     }
 
     private boolean applyEvidenceFusion(final Player player,
                                         final double severity,
+                                        final int pingMs,
+                                        final double jitterMs,
                                         final MovingData data,
                                         final IPlayerData pData) {
         if (!pData.isCheckActive(CheckType.COMBINED_IMPROBABLE, player)) {
@@ -97,9 +99,17 @@ public class Timer extends Check {
             Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.5f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
-        if (data.timerVL >= stage3Threshold) {
+        final boolean stage3Candidate = data.timerVL >= stage3Threshold;
+        final boolean stage3 = stage3Candidate
+                && EvidenceFusionProfile.shouldEscalateStage3(combinedConfig, now, data.timerStage3CandidateTime);
+        if (stage3Candidate) {
+            data.timerStage3CandidateTime = now;
+        }
+        if (stage3) {
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
                     "moving.timer", data.timerVL, base, "stage3");
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "moving.timer", "stage3", data.timerVL,
+                    overrideProfile, pingMs, Double.valueOf(jitterMs));
             return Improbable.check(player,
                     EvidenceFusionProfile.stage3Weight(base * 1.20f, combinedConfig, overrideProfile),
                     now,
@@ -107,7 +117,9 @@ public class Timer extends Check {
                     pData);
         }
         EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                "moving.timer", data.timerVL, base, "stage2");
+                "moving.timer", data.timerVL, base, stage3Candidate ? "stage2-repeat-pending" : "stage2");
+        EvidenceFusionProfile.snapshotStage(player, combinedConfig, "moving.timer", "stage2", data.timerVL,
+                overrideProfile, pingMs, Double.valueOf(jitterMs));
         return Improbable.check(player,
                 EvidenceFusionProfile.stage2Weight(base * 0.80f, combinedConfig, overrideProfile),
                 now,

@@ -102,9 +102,17 @@ public class FlyingFrequency extends Check {
             Improbable.feed(player, EvidenceFusionProfile.feedWeight(base * 0.50f, combinedConfig, overrideProfile), now, pData);
             return false;
         }
-        if (violation >= stage3Threshold) {
+        final boolean stage3Candidate = violation >= stage3Threshold;
+        final boolean stage3 = stage3Candidate
+                && EvidenceFusionProfile.shouldEscalateStage3(combinedConfig, now, data.netFlyingStage3CandidateTime);
+        if (stage3Candidate) {
+            data.netFlyingStage3CandidateTime = now;
+        }
+        if (stage3) {
             EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
                     "net.flyingfrequency", violation, base, "stage3");
+            EvidenceFusionProfile.snapshotStage(player, combinedConfig, "net.flyingfrequency", "stage3",
+                    violation, overrideProfile, null, null);
             return Improbable.check(player,
                     EvidenceFusionProfile.stage3Weight(base * 1.15f, combinedConfig, overrideProfile),
                     now,
@@ -112,7 +120,9 @@ public class FlyingFrequency extends Check {
                     pData);
         }
         EvidenceFusionProfile.debugProfile(player, pData, type, combinedConfig, overrideProfile,
-                "net.flyingfrequency", violation, base, "stage2");
+                "net.flyingfrequency", violation, base, stage3Candidate ? "stage2-repeat-pending" : "stage2");
+        EvidenceFusionProfile.snapshotStage(player, combinedConfig, "net.flyingfrequency", "stage2",
+                violation, overrideProfile, null, null);
         return Improbable.check(player,
                 EvidenceFusionProfile.stage2Weight(base * 0.80f, combinedConfig, overrideProfile),
                 now,

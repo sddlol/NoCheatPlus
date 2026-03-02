@@ -36,6 +36,8 @@ public class BlockPlaceData extends ACheckData {
     public double speedVL;
     public long reachEvidenceTime = 0L;
     public long scaffoldEvidenceTime = 0L;
+    public long reachStage3CandidateTime = 0L;
+    public long scaffoldStage3CandidateTime = 0L;
 
     // AutoSign.
     public long signOpenTime = 0;

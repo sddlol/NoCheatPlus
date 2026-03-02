@@ -457,9 +457,14 @@ public abstract class ConfPaths {
     public static final String  COMBINED_EVIDENCE_OVERRIDES_NET_WRONGTURN = COMBINED_EVIDENCE_OVERRIDES + "net-wrongturn";
     public static final String  COMBINED_EVIDENCE_OVERRIDES_NET_KEEPALIVEFREQUENCY = COMBINED_EVIDENCE_OVERRIDES + "net-keepalivefrequency";
     public static final String  COMBINED_EVIDENCE_OVERRIDES_NET_PACKETFREQUENCY = COMBINED_EVIDENCE_OVERRIDES + "net-packetfrequency";
+    private static final String COMBINED_EVIDENCE_GUARDRAILS             = COMBINED_EVIDENCE + "guardrails.";
+    public static final String  COMBINED_EVIDENCE_GUARDRAILS_ENABLED     = COMBINED_EVIDENCE_GUARDRAILS + SUB_ACTIVE;
+    public static final String  COMBINED_EVIDENCE_GUARDRAILS_MIN_REPEAT_WINDOW_MS = COMBINED_EVIDENCE_GUARDRAILS + "min-repeat-window-ms";
+    public static final String  COMBINED_EVIDENCE_GUARDRAILS_REQUIRE_REPEAT_FOR_STAGE3 = COMBINED_EVIDENCE_GUARDRAILS + "require-repeat-for-stage3";
     private static final String COMBINED_EVIDENCE_DEBUG                  = COMBINED_EVIDENCE + "debug.";
     public static final String  COMBINED_EVIDENCE_DEBUG_ACTIVE           = COMBINED_EVIDENCE_DEBUG + SUB_ACTIVE;
     public static final String  COMBINED_EVIDENCE_DEBUG_MININTERVALMS    = COMBINED_EVIDENCE_DEBUG + "min-interval-ms";
+    public static final String  COMBINED_EVIDENCE_DEBUG_SNAPSHOT_ACTIVE  = COMBINED_EVIDENCE_DEBUG + "snapshot-active";
 
     private static final String COMBINED_INVULNERABLE                       = COMBINED + "invulnerable.";
     public static final String  COMBINED_INVULNERABLE_CHECK                 = COMBINED_INVULNERABLE + SUB_ACTIVE;
