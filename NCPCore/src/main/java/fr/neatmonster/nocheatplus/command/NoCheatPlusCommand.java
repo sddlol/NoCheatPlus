@@ -178,7 +178,15 @@ public class NoCheatPlusCommand extends BaseCommand {
                     }
                 }
             }
-            // No sub command worked, print usage.
+
+            // Default to localized commands overview instead of static plugin.yml usage.
+            final AbstractCommand<?> commandsCmd = subCommands.get("commands");
+            if (commandsCmd != null && commandsCmd.testPermission(sender, command, commandLabel, args)) {
+                commandsCmd.onCommand(sender, command, commandLabel, args);
+                return true;
+            }
+
+            // Fallback: no sub-command worked and no commands permission.
             return false;
         }
 
