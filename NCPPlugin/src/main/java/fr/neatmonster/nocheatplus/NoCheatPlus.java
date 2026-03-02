@@ -1100,10 +1100,28 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
         if (onlinePlayers.length > 0) {
             logManager.info(Streams.INIT, "Updated data for " + onlinePlayers.length + " players (post-enable).");
         }
+        promptSetupWizardIfNeeded(config, onlinePlayers);
         // Finished.
         logManager.info(Streams.INIT, "Post-enable finished.");
         // Log version to file (queued).
         logManager.info(Streams.DEFAULT_FILE, StringUtil.join(VersionCommand.getVersionInfo(), "\n"));
+    }
+
+    private void promptSetupWizardIfNeeded(final ConfigFile config, final Player[] onlinePlayers) {
+        if (config.getBoolean(ConfPaths.SETUP_COMPLETED, false)) {
+            return;
+        }
+        logManager.warning(Streams.INIT,
+                "NCP setup 未完成: 请在服务器启动后运行 /ncp setup <survival|pvp|minigame|anarchy> 选择默认配置模板。");
+        logManager.warning(Streams.INIT,
+                "在你选择前将继续使用当前配置（默认是安全保守值，不会自动替你选模板）。");
+
+        for (final Player player : onlinePlayers) {
+            if (player.isOp() || DataManager.getPlayerData(player).hasPermission(Permissions.COMMAND_SETUP, player)) {
+                sendMessageOnTick(player.getName(), ChatColor.YELLOW
+                        + "NCP setup 未完成: 使用 /ncp setup <survival|pvp|minigame|anarchy> 选择服务器类型。");
+            }
+        }
     }
 
     /**
@@ -1323,6 +1341,10 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
             if (data.getNotifyOff()) {
                 sendMessageOnTick(playerName, MSG_NOTIFY_OFF);
             }
+        }
+        if (!ConfigManager.getConfigFile().getBoolean(ConfPaths.SETUP_COMPLETED, false)
+                && (player.isOp() || data.hasPermission(Permissions.COMMAND_SETUP, player))) {
+            sendMessageOnTick(playerName, ChatColor.YELLOW + "NCP setup 未完成: 使用 /ncp setup <survival|pvp|minigame|anarchy> 选择服务器类型。");
         }
         // JoinLeaveListenerS: Do update comment in NoCheatPlusAPI with changing event priority.
         for (final JoinLeaveListener jlListener : joinLeaveListeners) {

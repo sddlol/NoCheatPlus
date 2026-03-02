@@ -72,6 +72,7 @@ public class Permissions {
     public static final RegisteredPermission  COMMAND_LOG                  = add(COMMAND + ".log");
     public static final RegisteredPermission  COMMAND_NOTIFY               = add(COMMAND + ".notify");
     public static final RegisteredPermission  COMMAND_RELOAD               = add(COMMAND + ".reload");
+    public static final RegisteredPermission  COMMAND_SETUP                = add(COMMAND + ".setup");
     public static final RegisteredPermission  COMMAND_REMOVEPLAYER         = add(COMMAND + ".removeplayer");
     public static final RegisteredPermission  COMMAND_REMOVEPLAYER_SELF    = add(COMMAND_REMOVEPLAYER + ".self");
     public static final RegisteredPermission  COMMAND_RESET                = add(COMMAND + ".reset");

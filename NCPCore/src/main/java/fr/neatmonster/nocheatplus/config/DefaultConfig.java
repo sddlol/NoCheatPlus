@@ -42,6 +42,8 @@ public class DefaultConfig extends ConfigFile {
 
         // General.
         set(ConfPaths.SAVEBACKCONFIG, true, 154);
+        set(ConfPaths.SETUP_COMPLETED, false, 154);
+        set(ConfPaths.SETUP_PROFILE, "unconfigured", 154);
 
         // Config version.
         set(ConfPaths.CONFIGVERSION_NOTIFY, true, 154);

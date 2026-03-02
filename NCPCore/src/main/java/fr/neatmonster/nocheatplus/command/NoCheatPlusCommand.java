@@ -38,6 +38,7 @@ import fr.neatmonster.nocheatplus.command.admin.InspectCommand;
 import fr.neatmonster.nocheatplus.command.admin.LagCommand;
 import fr.neatmonster.nocheatplus.command.admin.ReloadCommand;
 import fr.neatmonster.nocheatplus.command.admin.RemovePlayerCommand;
+import fr.neatmonster.nocheatplus.command.admin.SetupCommand;
 import fr.neatmonster.nocheatplus.command.admin.VersionCommand;
 import fr.neatmonster.nocheatplus.command.admin.debug.DebugCommand;
 import fr.neatmonster.nocheatplus.command.admin.exemption.ExemptCommand;
@@ -113,6 +114,7 @@ public class NoCheatPlusCommand extends BaseCommand {
                 new VersionCommand(plugin),
                 new NotifyCommand(plugin),
                 new ReloadCommand(plugin, notifyReload),
+                new SetupCommand(plugin),
                 new RemovePlayerCommand(plugin),
                 new TellCommand(plugin),
                 new DenyLoginCommand(plugin),

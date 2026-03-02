@@ -77,6 +77,12 @@ public abstract class ConfPaths {
     public static final String CONFIGVERSION_CREATED                     = CONFIGVERSION + "created";
     /** Build number of the build for which the default config was first created (DefaultConfig.buildNumber), updated with each save. */
     public static final String CONFIGVERSION_SAVED                       = CONFIGVERSION + "saved";
+
+    // First-start setup wizard state.
+    @GlobalConfig
+    public static final String SETUP                                     = "setup.";
+    public static final String SETUP_COMPLETED                           = SETUP + "completed";
+    public static final String SETUP_PROFILE                             = SETUP + "profile";
     
     @GlobalConfig
     private static final String LOGGING                                  = "logging.";
