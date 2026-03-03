@@ -54,6 +54,11 @@ checks:
       debug:
         active: true
         min-interval-ms: 1500
+        snapshot-active: true
+      guardrails:
+        enabled: true
+        min-repeat-window-ms: 350
+        require-repeat-for-stage3: true
 ```
 
 Available override keys:
@@ -65,6 +70,25 @@ Available override keys:
 Values:
 - Global `profile`: `balanced` / `strict`
 - Per-check `overrides.*`: `inherit` / `balanced` / `strict`
+
+New in this fork (P10/P11)
+---------
+- Guardrails for stage3 escalation (`checks.combined.evidence.guardrails.*`):
+  - `enabled`
+  - `min-repeat-window-ms`
+  - `require-repeat-for-stage3`
+- Structured stage2/stage3 snapshot logs (`checks.combined.evidence.debug.snapshot-active`).
+- First-start setup wizard (no auto profile selection):
+  - `/ncp setup <survival|pvp|minigame|anarchy|status|reset>`
+- Runtime command language switch:
+  - `/ncp lang <en|zh-cn|status>`
+
+Recommended first-start flow
+---------
+1. Start server once and wait for NCP setup prompt.
+2. Run `/ncp setup <profile>` as console or OP.
+3. Optional: run `/ncp lang zh-cn` if you want Chinese command outputs.
+4. Test for 10-30 minutes, then tighten per-check overrides if needed.
 
 More details: Docs → [Combined Improbable](https://github.com/sddlol/Docs/blob/master/Settings/Checks/%5BCombined%5D-Improbable.md)
 

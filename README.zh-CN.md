@@ -50,6 +50,11 @@ checks:
       debug:
         active: true
         min-interval-ms: 1500
+        snapshot-active: true
+      guardrails:
+        enabled: true
+        min-repeat-window-ms: 350
+        require-repeat-for-stage3: true
 ```
 
 可覆盖键：
@@ -61,6 +66,25 @@ checks:
 取值：
 - 全局 `profile`：`balanced` / `strict`
 - `overrides.*`：`inherit` / `balanced` / `strict`
+
+## 本 fork 新增（P10 / P11）
+
+- Stage3 误报防线（`checks.combined.evidence.guardrails.*`）：
+  - `enabled`
+  - `min-repeat-window-ms`
+  - `require-repeat-for-stage3`
+- Stage2/Stage3 结构化快照日志（`checks.combined.evidence.debug.snapshot-active`）
+- 首次启动向导（不自动替服主选模板）：
+  - `/ncp setup <survival|pvp|minigame|anarchy|status|reset>`
+- 命令语言切换：
+  - `/ncp lang <en|zh-cn|status>`
+
+## 首次部署建议流程
+
+1. 首次启动后观察 NCP setup 提示
+2. 由控制台或 OP 执行 `/ncp setup <profile>`
+3. 需要中文命令输出可执行 `/ncp lang zh-cn`
+4. 实测 10~30 分钟后，再按服类型收紧 override
 
 详细说明：Docs → [Combined Improbable](https://github.com/sddlol/Docs/blob/master/zh-CN/Settings/Checks/%5BCombined%5D-Improbable.md)
 
